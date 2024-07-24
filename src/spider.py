@@ -40,6 +40,7 @@ class Spider(scrapy.Spider):
   name = 'spider'
   start_urls = []
   start_wayback_url: WaybackUrl
+  visited = set()
 
   def __init__(self, start_url, *args, **kwargs):
     super().__init__(*args, **kwargs)
@@ -81,6 +82,12 @@ class Spider(scrapy.Spider):
     if not self.start_wayback_url.matches_year(link):
       logging.info(f'\tDoes not match year')
       return False
+
+    if link.get_original_url() in self.visited:
+      logging.info(f'\tAlready visited a previous snapshot')
+      return False
+
+    self.visited.add(link.get_original_url())
 
     logging.info(f'\tGood')
 
