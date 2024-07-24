@@ -86,5 +86,8 @@ process = CrawlerProcess(settings={
 # Add your spider to the process
 process.crawl(Spider, df.iloc[0])
 
+def callback():
+  logging.info('Crawling complete')
+
 # Start the crawling process
-process.start()
+process.start(callback=callback)

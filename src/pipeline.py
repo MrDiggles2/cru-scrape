@@ -11,7 +11,7 @@ class MyPipeline:
         self.file = f'./output/{int(time.time())}.ndjson'
 
     def process_item(self, item: MyItem, spider):
-        with open(self.file, 'w') as f:
+        with open(self.file, 'a') as f:
             f.write(
                 json.dumps({
                     'url': item['url'],

@@ -1,30 +1,13 @@
 import scrapy
-import re
-import urllib.parse
 import logging
 from item import MyItem
 from bs4 import BeautifulSoup
 from bs4.element import Comment
-
-def normalize_link(url: str, originUrl: str):
-  # remove any mailto urls
-  if url.find('mailto:') > -1:
-    return None
-
-  # i.e. #first-level-nav
-  if url.startswith('#'):
-    return None
-
-  joined_url = url
-  # i.e. hunting_trapping/hunting/MainesGamePlanForDeer.htm
-  if not url.startswith('http'):
-    joined_url = urllib.parse.urljoin(originUrl, url)
-
-  no_port_url = re.sub(r':\d+/', '/', joined_url)
-  corrected_proto_url = re.sub(r'http://?', 'http://', no_port_url)
-  return corrected_proto_url
+from waybackurl import WaybackUrl
 
 def text_from_html(rawHtml: str):
+
+  # TODO: Handle PDFs
 
   soup = BeautifulSoup(rawHtml, 'html.parser')
 
@@ -56,60 +39,49 @@ def text_from_html(rawHtml: str):
 class Spider(scrapy.Spider):
   name = 'spider'
   start_urls = []
-  wayback_url: str
+  start_wayback_url: WaybackUrl
 
   def __init__(self, start_url, *args, **kwargs):
     super().__init__(*args, **kwargs)
     logging.getLogger('scrapy').setLevel(logging.WARNING)
 
     self.start_urls.append(start_url)
-
-    wayback_path = urllib.parse.urlparse(start_url).path
-    domain_index = wayback_path.find('http')
-    self.wayback_url = normalize_link('', wayback_path[domain_index:])
-    self.year = wayback_path.split('/')[2][0:4]
+    self.start_wayback_url = WaybackUrl.from_url(start_url)
 
   def parse(self, response):
+    url = WaybackUrl.from_url(response.request.url)
 
-    url = normalize_link('', response.request.url)
-
-    print(f'at {url}')
+    logging.info(f'at {url.get_full_url()}')
 
     item = MyItem()
-    item['url'] = str(url)
+    item['url'] = str(url.get_full_url())
     item['content'] = str(text_from_html(response.body))
     item['original_date'] = str(response.headers.get('X-Archive-Orig-Date'))
 
     yield item
 
     for href in response.css('a::attr(href)'):
-        n_link = normalize_link(str(href), url)
-        if n_link is None:
-          print(f'skipping 1 {n_link}')
-          continue
+        n_link = url.join(str(href))
 
-        if not self.is_relevant(n_link):
-          continue
+        if self.is_relevant(n_link):
+          yield response.follow(n_link.get_full_url(), self.parse)
 
-        yield response.follow(n_link, self.parse)
+  def is_relevant(self, link: WaybackUrl):
 
-  def is_relevant(self, link: str):
-
-    logging.info(f'Checking relevance of {link}')
+    logging.info(f'Checking relevance of {link.get_full_url()}')
 
     # Check that we're staying on the page where we started
 
-    if link.find(self.wayback_url) == -1:
-      logging.info(f'\tDoes not contain {self.wayback_url}')
+    if not link.matches_origin(self.start_wayback_url):
+      logging.info(f'\tDoes not contain start URL')
       return False
 
     # Check that the year on the link matches where we started
 
-    year = urllib.parse.urlparse(link).path.split('/')[2][0:4]
-    if not self.year == year:
-      logging.info(f'\tDoes not match year {self.year}')
+    if not self.start_wayback_url.matches_year(link):
+      logging.info(f'\tDoes not match year')
       return False
 
-    logging.info(f'\tgood')
+    logging.info(f'\tGood')
 
     return True
