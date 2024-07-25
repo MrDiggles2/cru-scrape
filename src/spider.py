@@ -4,6 +4,7 @@ from item import MyItem
 from bs4 import BeautifulSoup
 from bs4.element import Comment
 from waybackurl import WaybackUrl
+from logger import logger
 
 def text_from_html(rawHtml: str):
 
@@ -46,20 +47,29 @@ class Spider(scrapy.Spider):
     super().__init__(*args, **kwargs)
     logging.getLogger('scrapy').setLevel(logging.WARNING)
 
+    root = logging.getLogger()
+    if root.handlers:
+      for handler in root.handlers:
+          root.removeHandler(handler)
+
     self.start_urls.append(start_url)
     self.start_wayback_url = WaybackUrl.from_url(start_url)
 
   def parse(self, response):
     url = WaybackUrl.from_url(response.request.url)
 
-    logging.info(f'at {url.get_full_url()}')
+    logger.info(f'at {url.get_full_url()}')
 
     item = MyItem()
     item['url'] = str(url.get_full_url())
+    item['base_url'] = str(self.start_wayback_url.get_full_url())
     item['content'] = str(text_from_html(response.body))
-    item['original_date'] = str(response.headers.get('X-Archive-Orig-Date'))
 
-    yield item
+    # We need to check here since WB will occasionally redirect to a different
+    # year. If we encounter those, we should just ignore it to avoid muddling up
+    # the data.
+    if url.matches_year(self.start_wayback_url):
+      yield item
 
     for href in response.css('a::attr(href)'):
         n_link = url.join(str(href))
@@ -69,26 +79,26 @@ class Spider(scrapy.Spider):
 
   def is_relevant(self, link: WaybackUrl):
 
-    logging.info(f'Checking relevance of {link.get_full_url()}')
+    logger.info(f'Checking relevance of {link.get_full_url()}')
 
     # Check that we're staying on the page where we started
 
     if not link.matches_origin(self.start_wayback_url):
-      logging.info(f'\tDoes not contain start URL')
+      logger.info(f'\tDoes not contain start URL')
       return False
 
     # Check that the year on the link matches where we started
 
     if not self.start_wayback_url.matches_year(link):
-      logging.info(f'\tDoes not match year')
+      logger.info(f'\tDoes not match year')
       return False
 
     if link.get_original_url() in self.visited:
-      logging.info(f'\tAlready visited a previous snapshot')
+      logger.info(f'\tAlready visited a previous snapshot')
       return False
 
     self.visited.add(link.get_original_url())
 
-    logging.info(f'\tGood')
+    logger.info(f'\tGood')
 
     return True

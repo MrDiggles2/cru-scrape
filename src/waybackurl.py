@@ -2,8 +2,7 @@ from typing import List
 import urllib.parse
 import datetime
 import re
-
-import logging
+from logger import logger
 
 class WaybackUrl:
   url: str
@@ -41,15 +40,15 @@ class WaybackUrl:
     return WaybackUrl(no_anchor_url)
 
   def matches_origin(self, parent: "WaybackUrl"):
-    logging.debug(f'\tchecking origin')
-    logging.debug(f'\t\t{parent.get_full_url()}')
-    logging.debug(f'\t\t{self.get_full_url()}')
+    logger.debug(f'\tchecking origin')
+    logger.debug(f'\t\t{parent.get_full_url()}')
+    logger.debug(f'\t\t{self.get_full_url()}')
     return self.get_original_url().find(parent.get_original_url()) > -1
 
   def matches_year(self, url: "WaybackUrl"):
-    logging.debug(f'\tchecking year')
-    logging.debug(f'\t\t{url.get_snapshot_date().year}')
-    logging.debug(f'\t\t{self.get_snapshot_date().year}')
+    logger.debug(f'\tchecking year')
+    logger.debug(f'\t\t{url.get_snapshot_date().year}')
+    logger.debug(f'\t\t{self.get_snapshot_date().year}')
     return self.get_snapshot_date().year == url.get_snapshot_date().year
 
   def join(self, path: str):

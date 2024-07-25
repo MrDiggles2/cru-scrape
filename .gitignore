@@ -5,3 +5,5 @@ pyvenv.cfg
 data/
 __pycache__
 output/
+*.log
+.env
