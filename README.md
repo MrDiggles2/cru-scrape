@@ -8,6 +8,9 @@ To install poetry run
 ```
 curl -sSL https://install.python-poetry.org | python3 -
 ```
+
+Don't forget to add the poetry path to your bashrc, it will give you the export command at the end of the install logs
+
 ## How to uninstall if you want
 ```
 curl -sSL https://install.python-poetry.org | python3 - --uninstall
@@ -22,5 +25,5 @@ poetry install
 # Run the code
 ```
 cd src
-poetry run main.py
+poetry run python main.py
 ```
