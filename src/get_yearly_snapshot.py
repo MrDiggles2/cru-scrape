@@ -24,7 +24,8 @@ def parse_memento_line(line: str):
 
   return url, rel, datetime_value
 
-def get_yearly_snapshot(url: str) -> List[str]:
+
+def get_yearly_snapshot(year: str,url: str) -> str:
   slug = url.replace('http://', '').replace('https://', '').replace('.', '-').replace('/', '-')
   dirPath = os.path.dirname(os.path.realpath(__file__))
   dataPath = os.path.join(dirPath, slug) + '.txt'
@@ -65,7 +66,15 @@ def get_yearly_snapshot(url: str) -> List[str]:
   # Function to get middle row
   def get_middle_row(group):
       return group.iloc[len(group) // 2]
-
-  ret = pd.concat([get_middle_row(group) for _, group in grouped])
-  return ret["url"].tolist()
+  
+  matched_groups = [get_middle_row(group) for group_year, group in grouped if year in str(group_year)]
+  if len(matched_groups) == 0:
+      print(f"Couldn't find a group for the year: {year}")
+      available_group_years = [str(group_year).replace(".0", "") for group_year, _ in grouped]
+      print(f"The years that were found are: {available_group_years}")
+      exit(0)
+      
+  url = pd.concat(matched_groups)["url"]
+  print(f"Found url: {url}   for year: {year}")
+  return url
 
