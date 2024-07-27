@@ -67,7 +67,7 @@ def get_yearly_snapshot(year: str,url: str) -> str:
   def get_middle_row(group):
       return group.iloc[len(group) // 2]
   
-  matched_groups = [get_middle_row(group) for group_year, group in grouped if year in str(group_year)]
+  matched_groups = [get_middle_row(group) for group_year, group in grouped if year == str(group_year).replace(".0", "")]
   if len(matched_groups) == 0:
       print(f"Couldn't find a group for the year: {year}")
       available_group_years = [str(group_year).replace(".0", "") for group_year, _ in grouped]
