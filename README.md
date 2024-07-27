@@ -1,5 +1,3 @@
-## Installing
-
 
 # Install Poetry (if you don't have it)
 To check if you have it run
@@ -22,4 +20,3 @@ poetry install
 cd src
 poetry run main.py
 ```
-
