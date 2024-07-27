@@ -62,7 +62,7 @@ class Spider(scrapy.Spider):
 
     item = MyItem()
     item['url'] = str(url.get_full_url())
-    item['base_url'] = str(self.start_wayback_url.get_full_url())
+    item['base_url'] = str(self.start_wayback_url.get_original_url())
     item['content'] = str(text_from_html(response.body))
 
     # We need to check here since WB will occasionally redirect to a different
