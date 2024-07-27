@@ -27,3 +27,8 @@ poetry install
 cd src
 poetry run python main.py
 ```
+
+# How to add libraries
+```
+poetry add <library name>
+```
