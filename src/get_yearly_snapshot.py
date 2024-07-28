@@ -72,7 +72,7 @@ def get_yearly_snapshot(year: str,url: str) -> str:
       print(f"Couldn't find a group for the year: {year}")
       available_group_years = [str(group_year).replace(".0", "") for group_year, _ in grouped]
       print(f"The years that were found are: {available_group_years}")
-      exit(0)
+      exit(1)
       
   url = pd.concat(matched_groups)["url"]
   print(f"Found url: {url}   for year: {year}")
