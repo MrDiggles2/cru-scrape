@@ -25,8 +25,14 @@ poetry install
 # Run the code
 ```
 cd src
-poetry run python main.py
+poetry run python main.py <year> <base_url>
 ```
+
+## example args
+```
+poetry run python main.py 2002 "https://www.maine.gov/ifw/"
+```
+
 
 # How to add libraries
 ```

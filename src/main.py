@@ -7,10 +7,6 @@ import typer
 
 app = typer.Typer(no_args_is_help=True)
 
-baseUrls = [
-  "https://www.maine.gov/ifw/"
-]
-
 
 @app.command(help="Starts the crawl")
 def crawl(
