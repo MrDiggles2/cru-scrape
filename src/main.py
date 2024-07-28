@@ -8,7 +8,7 @@ import typer
 app = typer.Typer(no_args_is_help=True)
 
 
-@app.command(help="Starts the crawl")
+@app.command(help="Starts the crawl", no_args_is_help=True)
 def crawl(
     year: str = typer.Argument(..., help="The year of the site to scrape"),
     base_url: str = typer.Argument(..., help="The base url of the site to scrape"),
