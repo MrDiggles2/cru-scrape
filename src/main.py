@@ -11,7 +11,8 @@ app = typer.Typer(no_args_is_help=True)
 @app.command(help="Starts the crawl")
 def crawl(
     year: str = typer.Argument(..., help="The year of the site to scrape"),
-    base_url: str = typer.Argument(..., help="The base url of the site to scrape")
+    base_url: str = typer.Argument(..., help="The base url of the site to scrape"),
+    verbose: bool = typer.Option(False, "--verbose", is_flag=True, help="Enable verbose logging")
 ):
     url = get_yearly_snapshot(year, base_url)
 
