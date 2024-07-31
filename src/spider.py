@@ -4,7 +4,6 @@ from item import MyItem
 from bs4 import BeautifulSoup
 from bs4.element import Comment
 from waybackurl import WaybackUrl
-from logger import logger
 
 def text_from_html(rawHtml: str):
 
@@ -45,20 +44,13 @@ class Spider(scrapy.Spider):
 
   def __init__(self, start_url, *args, **kwargs):
     super().__init__(*args, **kwargs)
-    logging.getLogger('scrapy').setLevel(logging.WARNING)
-
-    root = logging.getLogger()
-    if root.handlers:
-      for handler in root.handlers:
-          root.removeHandler(handler)
-
     self.start_urls.append(start_url)
     self.start_wayback_url = WaybackUrl.from_url(start_url)
 
   def parse(self, response):
     url = WaybackUrl.from_url(response.request.url)
 
-    logger.info(f'at {url.get_full_url()}')
+    logging.info(f'at {url.get_full_url()}')
 
     item = MyItem()
     item['url'] = str(url.get_full_url())
@@ -79,26 +71,26 @@ class Spider(scrapy.Spider):
 
   def is_relevant(self, link: WaybackUrl):
 
-    logger.info(f'Checking relevance of {link.get_full_url()}')
+    logging.debug(f'Checking relevance of {link.get_full_url()}')
 
     # Check that we're staying on the page where we started
 
     if not link.matches_origin(self.start_wayback_url):
-      logger.info(f'\tDoes not contain start URL')
+      logging.debug(f'\tDoes not contain start URL')
       return False
 
     # Check that the year on the link matches where we started
 
     if not self.start_wayback_url.matches_year(link):
-      logger.info(f'\tDoes not match year')
+      logging.debug(f'\tDoes not match year')
       return False
 
     if link.get_original_url() in self.visited:
-      logger.info(f'\tAlready visited a previous snapshot')
+      logging.debug(f'\tAlready visited a previous snapshot')
       return False
 
     self.visited.add(link.get_original_url())
 
-    logger.info(f'\tGood')
+    logging.debug(f'\tGood')
 
     return True

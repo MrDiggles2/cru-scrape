@@ -1,11 +1,7 @@
-from datetime import datetime
 import psycopg2
 import json
 import re
-
 from waybackurl import WaybackUrl
-
-from logger import logger
  
 conn = psycopg2.connect(
     database="scrape_results",
