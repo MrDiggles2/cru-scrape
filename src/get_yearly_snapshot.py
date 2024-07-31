@@ -1,10 +1,8 @@
+import logging
 import requests
 import os.path
-from typing import List
 import pandas as pd
 import re
-
-from logger import logger
 
 def parse_memento_line(line: str):
   # Define regex patterns to match URL, rel attribute, and datetime attribute
@@ -31,7 +29,7 @@ def get_yearly_snapshot(year: str,url: str) -> str:
   dataPath = os.path.join(dirPath, slug) + '.txt'
 
   if not os.path.exists(dataPath):
-    logger.debug(f'No data found for {url}, creating {dataPath}')
+    logging.debug(f'No data found for {url}, creating {dataPath}')
     response = requests.get(f"http://web.archive.org/web/timemap/link/{url}")
 
     if (response.status_code != 200):

@@ -2,11 +2,9 @@ from scrapy.crawler import CrawlerProcess
 from get_yearly_snapshot import get_yearly_snapshot
 from spider import Spider
 import time
-from twisted.internet import defer, reactor
 import typer
 
 app = typer.Typer(no_args_is_help=True)
-
 
 @app.command(help="Starts the crawl", no_args_is_help=True)
 def crawl(
@@ -24,7 +22,8 @@ def crawl(
             'pipeline.MyPipeline': 300,
         },
         "DOWNLOAD_DELAY": "1.0",
-        "CONCURRENT_REQUESTS_PER_DOMAIN": "1"
+        "CONCURRENT_REQUESTS_PER_DOMAIN": "1",
+        'LOG_LEVEL': 'DEBUG' if verbose else 'INFO',
     })
 
     start = time.time()
