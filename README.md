@@ -23,16 +23,26 @@ poetry install
 ```
 
 # Run the code
+
+### Scraping sites
 ```
 cd src
 poetry run python main.py <year> <base_url>
-```
 
-## example args
-```
+# example
 poetry run python main.py 2002 "https://www.maine.gov/ifw/"
 ```
 
+### Uploading results
+
+```
+cp .env.example .env
+# Fill in values in .env
+
+cd src
+# Rename the .ndjson file inside upload.py
+poetry run python upload.py
+```
 
 # How to add libraries
 ```

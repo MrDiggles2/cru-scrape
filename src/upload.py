@@ -1,13 +1,17 @@
 import psycopg2
 import json
+import os
 import re
+from dotenv import load_dotenv
 from waybackurl import WaybackUrl
  
+load_dotenv()
+
 conn = psycopg2.connect(
     database="scrape_results",
-    user='postgres',
-    password='A&3!U0m9Md5qS#3l',
-    host='cru-scrape.c9su4260u1a7.us-east-1.rds.amazonaws.com',
+    user=os.getenv('DB_USER'),
+    password=os.getenv('DB_PASSWORD'),
+    host=os.getenv('DB_HOST'),
     port='5432'
 )
  
@@ -18,7 +22,7 @@ INSERT INTO scrape_results (base_url, year, original_url, wb_url, content, origi
 VALUES (%s, %s, %s, %s, %s, %s)
 """
 
-with open('../output/1721853210.ndjson', 'r') as f:
+with open('../output/1722824728.ndjson', 'r') as f:
   for line in f:
     data = json.loads(line)
     url = WaybackUrl.from_url(data["url"])
