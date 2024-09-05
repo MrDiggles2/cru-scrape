@@ -59,9 +59,16 @@ poetry run python upload.py
 erDiagram
   ORG {
     id uuid
-    name text
-    department text
+    name text uk
+    department text uk
     type text
+  }
+  
+  ORG_ALIAS {
+  	id uuid
+  	name text
+		department text
+		organization_id uuid
   }
 
   SITE {
@@ -82,6 +89,7 @@ erDiagram
     site_id uuid fk
   }
   
-  ORG ||--o{ SITE: has
-  SITE ||--o{ PAGE: has
+  ORG ||--|{ SITE: has
+  ORG ||--|{ ORG_ALIAS: has
+  SITE ||--|{ PAGE: has
 ```
