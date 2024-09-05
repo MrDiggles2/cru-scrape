@@ -8,7 +8,7 @@ def get_organization_id(cursor, name, department, type):
   sql = """
     SELECT id
     FROM public.organizations
-    WHERE name = %s AND department = %s AND type = %s
+    WHERE name = %s AND (department = %s OR department is NULL) AND type = %s
   """
   row = select_first(cursor, sql, (name, department, type))
 
@@ -18,7 +18,7 @@ def organization_alias_exists(cursor, current_org_id, name, department):
   sql = """
     SELECT count(*)
     FROM public.organization_aliases
-    WHERE name = %s AND department = %s AND organization_id = %s
+    WHERE name = %s AND (department = %s OR department is NULL) AND organization_id = %s
   """
   row = select_first(cursor, sql, (name, department, current_org_id))
 

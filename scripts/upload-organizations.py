@@ -9,7 +9,7 @@ from src.utils.psql import insert_organization, insert_organization_alias, get_o
 load_dotenv()
 
 conn = psycopg2.connect(
-    database="scrape_results",
+    database=os.getenv('DB_NAME'),
     user=os.getenv('DB_USER'),
     password=os.getenv('DB_PASSWORD'),
     host=os.getenv('DB_HOST'),
@@ -58,7 +58,7 @@ for row_dict in df.to_dict(orient="records"):
   # Always insert site if not already in db
 
   if (site_exists(cursor, site_url, current_org_id)):
-    print("SITE %s %s %s: inserted" % (current_org_id, organization_name, department))
+    print("SITE %s %s %s: skipped" % (current_org_id, organization_name, department))
   else:
     insert_site(cursor, site_url, current_org_id, start_year, end_year)
     print("SITE %s %s %s: inserted" % (current_org_id, organization_name, department))

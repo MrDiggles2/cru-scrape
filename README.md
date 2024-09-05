@@ -2,6 +2,54 @@
 
 ## Getting Started
 
+### Pre-reqs
+
+* [Poetry](https://python-poetry.org/)
+* [Docker](https://www.docker.com/)
+* Git
+
+### Installation
+
+```bash
+# Create copy of .env for local development
+cp .env.example .env
+
+# Start docker containers
+docker compose up --wait
+
+# Install python dependencies
+poetry install
+```
+
+### Running the code
+
+#### Seeding organization data
+
+```bash
+# Seed organization data
+poetry run python scripts/upload-organizations.py
+
+# Navigate to http://localhost:8080 to see tables populated
+```
+
+#### Scraping sites
+
+```bash
+poetry run python src/main.py 2002 "https://www.maine.gov/ifw/"
+
+# Gets outputted to ./output
+```
+
+#### Uploading results
+
+```bash
+cd src
+# Rename the .ndjson file inside upload.py
+poetry run python upload.py
+```
+
+## Useful commands
+
 ### Install Poetry (if you don't have it)
 To check if you have it run
 ```
@@ -29,28 +77,6 @@ poetry install
 ### How to add libraries
 ```
 poetry add <library name>
-```
-
-### Run the code
-
-#### Scraping sites
-```
-cd src
-poetry run python main.py <year> <base_url>
-
-# example
-poetry run python main.py 2002 "https://www.maine.gov/ifw/"
-```
-
-#### Uploading results
-
-```
-cp .env.example .env
-# Fill in values in .env
-
-cd src
-# Rename the .ndjson file inside upload.py
-poetry run python upload.py
 ```
 
 ## ER Diagram

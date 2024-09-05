@@ -16,11 +16,8 @@ TABLESPACE pg_default;
 ALTER TABLE IF EXISTS public.organizations
     OWNER to postgres;
 
-REVOKE ALL ON TABLE public.organizations FROM scrape_ro;
-
 GRANT ALL ON TABLE public.organizations TO postgres;
 
-GRANT SELECT ON TABLE public.organizations TO scrape_ro;
 -- Index: name_department_uk
 
 -- DROP INDEX IF EXISTS public.name_department_uk;
@@ -29,6 +26,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS name_department_uk
     ON public.organizations USING btree
     (name COLLATE pg_catalog."default" ASC NULLS LAST, COALESCE(department, 'unique_null_value'::text) COLLATE pg_catalog."default" ASC NULLS LAST)
     TABLESPACE pg_default;
+
 -- Index: name_department_uk_test
 
 -- DROP INDEX IF EXISTS public.name_department_uk_test;
@@ -86,11 +84,7 @@ TABLESPACE pg_default;
 ALTER TABLE IF EXISTS public.sites
     OWNER to postgres;
 
-REVOKE ALL ON TABLE public.sites FROM scrape_ro;
-
 GRANT ALL ON TABLE public.sites TO postgres;
-
-GRANT SELECT ON TABLE public.sites TO scrape_ro;
 
 -- Table: public.pages
 
@@ -121,8 +115,4 @@ TABLESPACE pg_default;
 ALTER TABLE IF EXISTS public.pages
     OWNER to postgres;
 
-REVOKE ALL ON TABLE public.pages FROM scrape_ro;
-
 GRANT ALL ON TABLE public.pages TO postgres;
-
-GRANT SELECT ON TABLE public.pages TO scrape_ro;
