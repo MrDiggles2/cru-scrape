@@ -1,5 +1,8 @@
+# CRU Scrape
 
-# Install Poetry (if you don't have it)
+## Getting Started
+
+### Install Poetry (if you don't have it)
 To check if you have it run
 ```
 which poetry
@@ -11,20 +14,26 @@ curl -sSL https://install.python-poetry.org | python3 -
 
 Don't forget to add the poetry path to your bashrc, it will give you the export command at the end of the install logs
 
-## How to uninstall if you want
+#### How to uninstall if you want
 ```
 curl -sSL https://install.python-poetry.org | python3 - --uninstall
 ```
 
-# Install dependencies 
+### Install dependencies
+
 Run this, it should create the virtual environment for you at the same time
 ```
 poetry install
 ```
 
-# Run the code
+### How to add libraries
+```
+poetry add <library name>
+```
 
-### Scraping sites
+### Run the code
+
+#### Scraping sites
 ```
 cd src
 poetry run python main.py <year> <base_url>
@@ -33,7 +42,7 @@ poetry run python main.py <year> <base_url>
 poetry run python main.py 2002 "https://www.maine.gov/ifw/"
 ```
 
-### Uploading results
+#### Uploading results
 
 ```
 cp .env.example .env
@@ -44,7 +53,35 @@ cd src
 poetry run python upload.py
 ```
 
-# How to add libraries
-```
-poetry add <library name>
+## ER Diagram
+
+```mermaid
+erDiagram
+  ORG {
+    id uuid
+    name text
+    department text
+    type text
+  }
+
+  SITE {
+    id uuid
+    url text
+    organization_id text fk
+    start_year int
+    end_year int
+  }
+
+  PAGE {
+    id uuid
+    year int uk
+    original_url text uk
+    wb_url text
+    content text
+    origianl_timestamp timestamp
+    site_id uuid fk
+  }
+  
+  ORG ||--o{ SITE: has
+  SITE ||--o{ PAGE: has
 ```
