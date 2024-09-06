@@ -4,7 +4,7 @@ import time
 import os
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
-output_path = os.path.join(dir_path, '../output');
+output_path = os.path.join(dir_path, '../output')
 
 class MyPipeline:
     file: str

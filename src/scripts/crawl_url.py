@@ -1,6 +1,6 @@
 from scrapy.crawler import CrawlerProcess
-from get_yearly_snapshot import get_yearly_snapshot
-from spider import Spider
+from src.get_yearly_snapshot import get_yearly_snapshot
+from src.spider import Spider
 import time
 import typer
 
