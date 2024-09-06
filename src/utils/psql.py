@@ -46,16 +46,16 @@ def site_exists(cursor, site_url, current_org_id):
   sql = """
     SELECT count(*)
     FROM public.sites
-    WHERE url = %s AND organization_id = %s
+    WHERE start_url = %s AND organization_id = %s
   """
   row = select_first(cursor, sql, (site_url, current_org_id))
 
   return True if row[0] > 0 else False
 
-def insert_site(cursor, site_url, current_org_id, start_year, end_year):
+def insert_site(cursor, site_url, base_url, current_org_id, start_year, end_year):
   sql = """
-    INSERT INTO public.sites (url, organization_id, start_year, end_year)
-      VALUES (%s, %s, %s, %s)
+    INSERT INTO public.sites (start_url, base_url, organization_id, start_year, end_year)
+      VALUES (%s, %s, %s, %s, %s)
   """
 
-  cursor.execute(sql, (site_url, current_org_id, start_year, end_year))
+  cursor.execute(sql, (site_url, base_url, current_org_id, start_year, end_year))

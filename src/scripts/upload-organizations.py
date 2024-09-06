@@ -5,6 +5,7 @@ import os
 import numpy as np
 from dotenv import load_dotenv
 from src.utils.psql import insert_organization, insert_organization_alias, get_organization_id, organization_alias_exists, site_exists, insert_site
+from src.utils.url import sanitize_url
  
 load_dotenv()
 
@@ -34,6 +35,8 @@ for row_dict in df.to_dict(orient="records"):
   site_url = row_dict['Link']
   start_year = row_dict['Start Date']
   end_year = row_dict['End Date']
+  base_url = sanitize_url(site_url)
+    
 
   # Create an organization if "entry" is 1
 
@@ -60,7 +63,7 @@ for row_dict in df.to_dict(orient="records"):
   if (site_exists(cursor, site_url, current_org_id)):
     print("SITE %s %s %s: skipped" % (current_org_id, organization_name, department))
   else:
-    insert_site(cursor, site_url, current_org_id, start_year, end_year)
+    insert_site(cursor, site_url, base_url, current_org_id, start_year, end_year)
     print("SITE %s %s %s: inserted" % (current_org_id, organization_name, department))
 
 conn.commit()

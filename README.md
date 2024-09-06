@@ -27,7 +27,7 @@ poetry install
 
 ```bash
 # Seed organization data
-poetry run python scripts/upload-organizations.py
+poetry run python src/scripts/upload-organizations.py
 
 # Navigate to http://localhost:8080 to see tables populated
 ```
@@ -49,6 +49,11 @@ poetry run python upload.py
 ```
 
 ## Useful commands
+
+### Destroy database
+```
+docker compose down --volumes
+```
 
 ### Install Poetry (if you don't have it)
 To check if you have it run
@@ -99,7 +104,8 @@ erDiagram
 
   SITE {
     id uuid
-    url text
+    start_url text
+    base_url text
     organization_id text fk
     start_year int
     end_year int
