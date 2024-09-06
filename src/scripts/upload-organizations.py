@@ -34,6 +34,15 @@ for row_dict in df.to_dict(orient="records"):
   site_url = row_dict['Link']
   start_year = row_dict['Start Date']
   end_year = row_dict['End Date']
+  base_url = site_url
+
+  url_split = site_url.split('/')
+  tail_split = url_split[-1].split('.')
+  tail_remove = ['php','aspx','asp','htm','html','cfm']
+  if tail_split[-1].strip() in tail_remove:
+    url_split[-1] = ''
+    base_url = '/'.join(url_split)
+    
 
   # Create an organization if "entry" is 1
 
@@ -60,7 +69,7 @@ for row_dict in df.to_dict(orient="records"):
   if (site_exists(cursor, site_url, current_org_id)):
     print("SITE %s %s %s: skipped" % (current_org_id, organization_name, department))
   else:
-    insert_site(cursor, site_url, current_org_id, start_year, end_year)
+    insert_site(cursor, site_url, base_url, current_org_id, start_year, end_year)
     print("SITE %s %s %s: inserted" % (current_org_id, organization_name, department))
 
 conn.commit()

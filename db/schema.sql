@@ -66,12 +66,13 @@ ALTER TABLE IF EXISTS public.organization_aliases
 CREATE TABLE IF NOT EXISTS public.sites
 (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
-    url text COLLATE pg_catalog."default" NOT NULL,
+    start_url text COLLATE pg_catalog."default" NOT NULL,
+    base_url text COLLATE pg_catalog."default" NOT NULL,
     organization_id uuid NOT NULL,
     start_year integer NOT NULL,
     end_year integer NOT NULL,
     CONSTRAINT sites_pkey PRIMARY KEY (id),
-    CONSTRAINT url_uk UNIQUE (url),
+    CONSTRAINT url_uk UNIQUE (start_url),
     CONSTRAINT organization_id_fk FOREIGN KEY (organization_id)
         REFERENCES public.organizations (id) MATCH SIMPLE
         ON UPDATE NO ACTION
