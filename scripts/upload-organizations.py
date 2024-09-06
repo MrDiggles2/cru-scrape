@@ -19,7 +19,7 @@ conn = psycopg2.connect(
 cursor = conn.cursor()
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
-file_path = os.path.join(dir_path, './modified.tsv');
+file_path = os.path.join(dir_path, './organizations.tsv');
 
 df = pd.read_csv(file_path, sep="\t")
 df = df.replace({np.nan: None})

@@ -180,7 +180,7 @@ Entry	Organization	Department	Type	Link	Wayback Machine	Start Date	End Date
 2	Pennsylvania Fish and Boat Commission		ST	https://www.fishandboat.com/Pages/default.aspx		2016	2024
 1	Pennsylvania Game Commission		ST	http://www.pgc.state.pa.us/		1998	2009
 2	Pennsylvania Game Commission		ST	http://www.pgc.state.pa.us/portal/server.pt/community/pgc/9106		2009	2016
-3	Pennsylvania Game Commission		ST	https://www.fishandboat.com/Pages/default.aspx		2016	2024
+3	Pennsylvania Game Commission		ST	http://pcg.pa.gov/		2016	2024
 1	South Carolina Department of Natural Resources		ST	http://water.dnr.state.sc.us/		1996	2005
 2	South Carolina Department of Natural Resources		ST	https://www.dnr.sc.gov		2005	2024
 1	South Dakota Game, Fish and Parks		ST	http://www.sdgfp.info/		2002	2010
@@ -229,8 +229,7 @@ Entry	Organization	Department	Type	Link	Wayback Machine	Start Date	End Date
 1	U.S. Fish and Wildlife Service	Mountain-Prairie	FED	http://www.r6.fws.gov/		1997	2015
 2	U.S. Fish and Wildlife Service	Mountain-Prairie	FED	https://www.fws.gov/mountain-prairie/index.php		2015	2022
 3	U.S. Fish and Wildlife Service	Mountain-Prairie	FED	https://www.fws.gov/about/region/mountain-prairie		2022	2024
-1	U.S. Fish and Wildlife Service	Pacific Southwest	FED	http://www.r1.fws.gov/		1997	2005
-2	U.S. Fish and Wildlife Service	Pacific Southwest	FED	https://www.fws.gov/about/region/pacific-southwest		2005	2024
+1	U.S. Fish and Wildlife Service	Pacific Southwest	FED	https://www.fws.gov/about/region/pacific-southwest		2005	2024
 1	U.S. Fish and Wildlife Service	Alaska 	FED	http://alaska.fws.gov/		2000	2012
 2	U.S. Fish and Wildlife Service	Alaska 	FED	https://www.fws.gov/alaska/		2012	2022
 3	U.S. Fish and Wildlife Service	Alaska 	FED	https://www.fws.gov/rivers/about/region/alaska		2022	2024
@@ -277,10 +276,10 @@ Entry	Organization	Department	Type	Link	Wayback Machine	Start Date	End Date
 2	MOCRU		CRU	https://www1.usgs.gov/coopunits/unit/Missouri		2020	2024
 1	MSCRU		CRU	http://www.coopunits.org/Mississippi/		2010	2019
 2	MSCRU		CRU	https://www1.usgs.gov/coopunits/unit/Mississippi		2020	2024
-1	MTCRU		CRU	http://www.coopunits.org/Montana_Fish/		2010	2019
-2	MTCRU		CRU	https://www1.usgs.gov/coopunits/unit/MontanaFishery		2020	2024
-1	MTCRU		CRU	http://www.coopunits.org/Montana_Wildlife		2010	2019
-2	MTCRU		CRU	https://www1.usgs.gov/coopunits/unit/MontanaWildlife		2020	2024
+1	MTFCRU		CRU	http://www.coopunits.org/Montana_Fish/		2010	2019
+2	MTFCRU		CRU	https://www1.usgs.gov/coopunits/unit/MontanaFishery		2020	2024
+1	MTWCRU		CRU	http://www.coopunits.org/Montana_Wildlife		2010	2019
+2	MTWCRU		CRU	https://www1.usgs.gov/coopunits/unit/MontanaWildlife		2020	2024
 1	NCCRU		CRU	http://www.coopunits.org/North_Carolina/		2010	2019
 2	NCCRU		CRU	https://www1.usgs.gov/coopunits/unit/NorthCarolina		2020	2024
 1	NECRU		CRU	http://www.coopunits.org/Nebraska/		2010	2019
@@ -312,10 +311,10 @@ Entry	Organization	Department	Type	Link	Wayback Machine	Start Date	End Date
 2	VTCRU		CRU	https://www1.usgs.gov/coopunits/unit/Vermont		2020	2024
 1	WACRU		CRU	http://www.coopunits.org/Washington/		2010	2019
 2	WACRU		CRU	https://www1.usgs.gov/coopunits/unit/Washington		2020	2024
-1	WICRU		CRU	http://www.coopunits.org/Wisconsin_Fish/		2010	2019
-2	WICRU		CRU	https://www1.usgs.gov/coopunits/unit/WisconsinFishery		2020	2024
-1	WICRU		CRU	http://www.coopunits.org/Wisconsin_Wildlife/		2010	2019
-2	WICRU		CRU	https://www1.usgs.gov/coopunits/unit/WisconsinWildlife		2020	2024
+1	WIFCRU		CRU	http://www.coopunits.org/Wisconsin_Fish/		2010	2019
+2	WIFCRU		CRU	https://www1.usgs.gov/coopunits/unit/WisconsinFishery		2020	2024
+1	WIWCRU		CRU	http://www.coopunits.org/Wisconsin_Wildlife/		2010	2019
+2	WIWCRU		CRU	https://www1.usgs.gov/coopunits/unit/WisconsinWildlife		2020	2024
 1	WVCRU		CRU	http://www.coopunits.org/West_Virginia		2010	2019
 2	WVCRU		CRU	https://www1.usgs.gov/coopunits/unit/WestVirginia		2020	2024
 1	WYCRU		CRU	http://www.coopunits.org/Wyoming/		2010	2019
