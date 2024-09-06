@@ -5,6 +5,7 @@ import os
 import numpy as np
 from dotenv import load_dotenv
 from src.utils.psql import insert_organization, insert_organization_alias, get_organization_id, organization_alias_exists, site_exists, insert_site
+from src.utils.url import sanitize_url
  
 load_dotenv()
 
@@ -34,14 +35,7 @@ for row_dict in df.to_dict(orient="records"):
   site_url = row_dict['Link']
   start_year = row_dict['Start Date']
   end_year = row_dict['End Date']
-  base_url = site_url
-
-  url_split = site_url.split('/')
-  tail_split = url_split[-1].split('.')
-  tail_remove = ['php','aspx','asp','htm','html','cfm']
-  if tail_split[-1].strip() in tail_remove:
-    url_split[-1] = ''
-    base_url = '/'.join(url_split)
+  base_url = sanitize_url(site_url)
     
 
   # Create an organization if "entry" is 1
