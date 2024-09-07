@@ -38,12 +38,6 @@ class WaybackUrl:
 
     return WaybackUrl(no_anchor_url)
 
-  def matches_origin(self, parent: "WaybackUrl"):
-    logging.debug(f'\tchecking origin')
-    logging.debug(f'\t\t{parent.get_full_url()}')
-    logging.debug(f'\t\t{self.get_full_url()}')
-    return self.get_original_url().find(parent.get_original_url()) > -1
-
   def matches_year(self, url: "WaybackUrl"):
     logging.debug(f'\tchecking year')
     logging.debug(f'\t\t{url.get_snapshot_date().year}')
