@@ -3,9 +3,8 @@ bin/
 lib/
 pyvenv.cfg
 data/
+!data/.gitkeep
 __pycache__
-output/
-!output/.gitkeep
 *.log
 .env
 .env.prod
