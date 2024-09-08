@@ -1,3 +1,20 @@
+import psycopg2
+import os
+from psycopg2.extras import RealDictCursor
+from dotenv import load_dotenv
+from src.entities import Site, PageItem
+from src.waybackurl import WaybackUrl
+
+load_dotenv()
+
+def get_connection():
+  return psycopg2.connect(
+      database=os.getenv('DB_NAME'),
+      user=os.getenv('DB_USER'),
+      password=os.getenv('DB_PASSWORD'),
+      host=os.getenv('DB_HOST'),
+      port='5432'
+  )
 
 def select_first(cursor, query, vars):
   cursor.execute(query, vars)
@@ -59,3 +76,51 @@ def insert_site(cursor, site_url, base_url, current_org_id, start_year, end_year
   """
 
   cursor.execute(sql, (site_url, base_url, current_org_id, start_year, end_year))
+
+def get_site_by_id(conn, site_id):
+  cursor = conn.cursor(cursor_factory=RealDictCursor)
+
+  sql = """
+    SELECT
+      id,
+      start_url,
+      base_url,
+      organization_id,
+      start_year,
+      end_year
+    from public.sites
+    where id = %s
+  """
+
+  cursor.execute(sql, (site_id,))
+  return Site(cursor.fetchone()) if cursor.rowcount > 0 else None
+
+def upsert_page(conn, page: PageItem) -> str:
+  cursor = conn.cursor()
+
+  sql = """
+    INSERT INTO public.pages
+      ( year, original_url, wb_url, content, original_timestamp, site_id )
+    VALUES
+      ( %s, %s, %s, %s, %s, %s )
+    ON CONFLICT (year, original_url)
+      DO UPDATE
+        SET
+          content = EXCLUDED.content,
+          original_timestamp = EXCLUDED.original_timestamp,
+          updated_at = now()
+    RETURNING id
+  """
+
+  url = WaybackUrl.from_url(page['wb_url'])
+
+  cursor.execute(sql, (
+    url.get_snapshot_date().year,
+    url.get_original_url(),
+    url.get_full_url(),
+    page['content'],
+    url.get_snapshot_date(),
+    page['site_id']
+  ))
+
+  return cursor.fetchone()[0]

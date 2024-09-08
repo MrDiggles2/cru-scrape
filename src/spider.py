@@ -1,9 +1,10 @@
 import scrapy
-import logging
-from item import MyItem
 from bs4 import BeautifulSoup
 from bs4.element import Comment
-from waybackurl import WaybackUrl
+import logging
+
+from src.entities import Site, PageItem
+from src.waybackurl import WaybackUrl
 
 def text_from_html(rawHtml: str):
 
@@ -38,24 +39,32 @@ def text_from_html(rawHtml: str):
 
 class Spider(scrapy.Spider):
   name = 'spider'
+  site = Site
   start_urls = []
   start_wayback_url: WaybackUrl
   visited = set()
 
-  def __init__(self, start_url, *args, **kwargs):
+  def __init__(self, wb_url: str, site: Site, *args, **kwargs):
     super().__init__(*args, **kwargs)
-    self.start_urls.append(start_url)
-    self.start_wayback_url = WaybackUrl.from_url(start_url)
+    self.site = site
+    self.start_wayback_url = WaybackUrl.from_url(wb_url)
+
+    # This is how scrapy knows where to scrape
+    self.start_urls.append(wb_url)
+
+    # Always suppress scrapy logs
+    logging.getLogger('scrapy').setLevel(logging.ERROR)
+    
 
   def parse(self, response):
     url = WaybackUrl.from_url(response.request.url)
 
     logging.info(f'at {url.get_full_url()}')
 
-    item = MyItem()
-    item['url'] = str(url.get_full_url())
-    item['base_url'] = str(self.start_wayback_url.get_original_url())
+    item = PageItem()
+    item['wb_url'] = str(url.get_full_url())
     item['content'] = str(text_from_html(response.body))
+    item['site_id'] = self.site.id
 
     # We need to check here since WB will occasionally redirect to a different
     # year. If we encounter those, we should just ignore it to avoid muddling up
@@ -75,7 +84,10 @@ class Spider(scrapy.Spider):
 
     # Check that we're staying on the page where we started
 
-    if not link.matches_origin(self.start_wayback_url):
+    logging.debug(f'\tchecking origin')
+    logging.debug(f'\t\t{self.site.base_url}')
+    logging.debug(f'\t\t{link.get_original_url()}')
+    if link.get_original_url().find(self.site.base_url) == -1:
       logging.debug(f'\tDoes not contain start URL')
       return False
 

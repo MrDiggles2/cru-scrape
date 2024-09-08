@@ -32,20 +32,16 @@ poetry run python src/scripts/upload-organizations.py
 # Navigate to http://localhost:8080 to see tables populated
 ```
 
-#### Scraping sites
+#### Scraping sites and dump content to stdout
 
 ```bash
 poetry run python src/main.py 2002 "https://www.maine.gov/ifw/"
-
-# Gets outputted to ./output
 ```
 
-#### Uploading results
+#### Scraping sites and push content to DB
 
 ```bash
-cd src
-# Rename the .ndjson file inside upload.py
-poetry run python upload.py
+poetry run python src/main.py 2002 "https://www.maine.gov/ifw/" --push
 ```
 
 ## Useful commands

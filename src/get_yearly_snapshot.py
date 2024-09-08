@@ -1,6 +1,6 @@
 import logging
 import requests
-import os.path
+import os
 import pandas as pd
 import re
 
@@ -26,7 +26,7 @@ def parse_memento_line(line: str):
 def get_yearly_snapshot(year: str,url: str) -> str:
   slug = url.replace('http://', '').replace('https://', '').replace('.', '-').replace('/', '-')
   dirPath = os.path.dirname(os.path.realpath(__file__))
-  dataPath = os.path.join(dirPath, slug) + '.txt'
+  dataPath = os.path.join(dirPath, '../data/', slug) + '.txt'
 
   if not os.path.exists(dataPath):
     logging.debug(f'No data found for {url}, creating {dataPath}')

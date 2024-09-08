@@ -1,28 +1,34 @@
-from item import MyItem
+import logging
 import json
-import time
-import os
 
-dir_path = os.path.dirname(os.path.realpath(__file__))
-output_path = os.path.join(dir_path, '../output')
+from src.entities import PageItem
+from src.utils.psql import get_connection, upsert_page
 
-class MyPipeline:
-    file: str
-
+class DbPipeline:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.file = f'{output_path}/{int(time.time())}.ndjson'
+        self.logger = logging.getLogger("dbpipeline")
 
-    def process_item(self, item: MyItem, spider):
-        with open(self.file, 'a') as f:
-            f.write(
-                json.dumps({
-                    'url': item['url'],
-                    'base_url': item['base_url'],
-                    'content': item['content']
-                }) + '\n'
-            )
+    def open_spider(self, spider):
+        self.conn = get_connection()
 
-            print('Wrote to ${self.file}')
+    def close_spider(self, spider):
+        self.conn.close()
 
-        return item
+    def process_item(self, item: PageItem, spider):
+        try:
+            page_id = upsert_page(self.conn, item)
+            self.logger.info(f'updated page {page_id}')
+        except Exception as e:
+            logging.error(e)
+        else:
+            self.conn.commit()
+
+class StdoutPipeline:
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.logger = logging.getLogger("stdoutpipeline")
+
+    def process_item(self, item: PageItem, spider):
+        self.logger.info(json.dumps(item.to_dict(), indent=4))
+        
