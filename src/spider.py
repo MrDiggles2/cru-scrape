@@ -1,4 +1,5 @@
 import scrapy
+from scrapy.http import Response
 from bs4 import BeautifulSoup
 from bs4.element import Comment
 import logging
@@ -56,7 +57,7 @@ class Spider(scrapy.Spider):
     logging.getLogger('scrapy').setLevel(logging.ERROR)
     
 
-  def parse(self, response):
+  def parse(self, response: Response):
     url = WaybackUrl.from_url(response.request.url)
 
     logging.info(f'at {url.get_full_url()}')
