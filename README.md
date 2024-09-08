@@ -34,14 +34,16 @@ poetry run python src/scripts/upload-organizations.py
 
 #### Scraping sites and dump content to stdout
 
+You must run the seed procedure above and grab one of the site IDs in the DB
+
 ```bash
-poetry run python src/main.py 2002 "https://www.maine.gov/ifw/"
+poetry run python src/scripts/crawl_url.py 2002 <SITE_ID>
 ```
 
 #### Scraping sites and push content to DB
 
 ```bash
-poetry run python src/main.py 2002 "https://www.maine.gov/ifw/" --push
+poetry run python src/scripts/crawl_url.py 2002 <SITE_ID> --push
 ```
 
 ## Useful commands
