@@ -21,3 +21,9 @@ class PageItem(scrapy.Item):
   content = scrapy.Field()
   site_id = scrapy.Field()
 
+  def to_dict(self):
+    return {
+      'wb_url': self['wb_url'],
+      'content': self['content'],
+      'site_id': self['site_id']
+    }

@@ -11,6 +11,7 @@ app = typer.Typer(no_args_is_help=True)
 def crawl(
     year: str = typer.Argument(..., help="The year of the site to scrape"),
     site_id: str = typer.Argument(..., help="ID of the site to scrap"),
+    push: bool = typer.Option(False, "--push", is_flag=True, help="Push to DB"),
     verbose: bool = typer.Option(False, "--verbose", is_flag=True, help="Enable verbose logging")
 ):
     conn = get_connection()
@@ -25,9 +26,8 @@ def crawl(
 
     process = CrawlerProcess(settings={
         'USER_AGENT': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-        'ITEM_PIPELINES': {
-            'src.pipeline.DbPipeline': 300,
-        },
+        'ITEM_PIPELINES':
+            { 'src.pipeline.DbPipeline': 300 } if push else { 'src.pipeline.StdoutPipeline': 300 },
         "DOWNLOAD_DELAY": "1.0",
         "CONCURRENT_REQUESTS_PER_DOMAIN": "1",
         'LOG_LEVEL': 'DEBUG' if verbose else 'INFO',

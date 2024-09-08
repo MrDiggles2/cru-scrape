@@ -1,4 +1,5 @@
 import logging
+import json
 
 from src.entities import PageItem
 from src.utils.psql import get_connection, upsert_page
@@ -22,3 +23,12 @@ class DbPipeline:
             logging.error(e)
         else:
             self.conn.commit()
+
+class StdoutPipeline:
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.logger = logging.getLogger("stdoutpipeline")
+
+    def process_item(self, item: PageItem, spider):
+        self.logger.info(json.dumps(item.to_dict(), indent=4))
+        
