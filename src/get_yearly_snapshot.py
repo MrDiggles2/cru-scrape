@@ -52,7 +52,7 @@ def get_yearly_snapshot(year: str,url: str) -> str:
 
   df = pd.DataFrame(parsedData)
   # Convert 'datetime' column to pandas datetime objects
-  df['datetime'] = pd.to_datetime(df['datetime'])
+  df['datetime'] = pd.to_datetime(df['datetime'], format="%a, %d %b %Y %H:%M:%S GMT")
   df["year"] = df['datetime'].dt.year
 
   # Filter for memento rows
