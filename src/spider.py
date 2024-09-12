@@ -3,6 +3,7 @@ from scrapy.http import Response
 from bs4 import BeautifulSoup
 from bs4.element import Comment
 import logging
+import re
 
 from src.entities import Site, PageItem
 from src.waybackurl import WaybackUrl
@@ -35,8 +36,10 @@ def text_from_html(rawHtml: str):
   visible_texts = filter(tag_filter, texts)  
 
   # Join them all together
+  joined_text = u" ".join(visible_texts)
 
-  return u" ".join(t.strip() for t in visible_texts)
+  # Remove any consecutive whitespaces
+  return re.sub(r'\s+', ' ', joined_text).strip()
 
 class Spider(scrapy.Spider):
   name = 'spider'
