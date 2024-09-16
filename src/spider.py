@@ -66,8 +66,6 @@ class Spider(scrapy.Spider):
   def parse(self, response: Response):
     url = WaybackUrl.from_url(response.request.url)
 
-    print(self.on_first_page)
-
     if self.on_first_page:
       self.base_url = sanitize_url(url.get_original_url())
       self.on_first_page = False
