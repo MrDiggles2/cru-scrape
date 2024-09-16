@@ -3,6 +3,8 @@ import urllib.parse
 import datetime
 import re
 
+from src.utils.url import remove_protocol_and_www
+
 class WaybackUrl:
   url: str
 
@@ -51,3 +53,13 @@ class WaybackUrl:
       joined_url = urllib.parse.urljoin(self.get_full_url(), path)
 
     return WaybackUrl.from_url(joined_url)
+
+  def contains(self, url: str):
+    me = remove_protocol_and_www(self.get_original_url())
+    them = remove_protocol_and_www(url)
+
+    logging.debug(f'\tchecking origin')
+    logging.debug(f'\t\t{me}')
+    logging.debug(f'\t\t{them}')
+
+    return  me.find(them) > -1

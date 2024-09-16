@@ -7,6 +7,7 @@ import re
 
 from src.entities import Site, PageItem
 from src.waybackurl import WaybackUrl
+from src.utils.url import sanitize_url
 
 def text_from_html(rawHtml: str):
 
@@ -47,6 +48,8 @@ class Spider(scrapy.Spider):
   start_urls = []
   start_wayback_url: WaybackUrl
   visited = set()
+  on_first_page = True
+  base_url: str
 
   def __init__(self, wb_url: str, site: Site, *args, **kwargs):
     super().__init__(*args, **kwargs)
@@ -62,6 +65,12 @@ class Spider(scrapy.Spider):
 
   def parse(self, response: Response):
     url = WaybackUrl.from_url(response.request.url)
+
+    print(self.on_first_page)
+
+    if self.on_first_page:
+      self.base_url = sanitize_url(url.get_original_url())
+      self.on_first_page = False
 
     logging.info(f'at {url.get_full_url()}')
 
@@ -88,10 +97,7 @@ class Spider(scrapy.Spider):
 
     # Check that we're staying on the page where we started
 
-    logging.debug(f'\tchecking origin')
-    logging.debug(f'\t\t{self.site.base_url}')
-    logging.debug(f'\t\t{link.get_original_url()}')
-    if link.get_original_url().find(self.site.base_url) == -1:
+    if not link.contains(self.base_url):
       logging.debug(f'\tDoes not contain start URL')
       return False
 
