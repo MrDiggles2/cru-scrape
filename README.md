@@ -1,5 +1,9 @@
 # CRU Scrape
 
+This project is the first step in an initiative to analyze website content of Cooperative Research Units (CRUs) to measure how public messaging has changed. We use the [Wayback Machine](https://web.archive.org/) to crawl snapshots of websites, extract text content, and push it to a central Postgres database in preparation for future analysis.
+
+Organizations that are currently tracked are listed here: https://github.com/MrDiggles2/cru-scrape/blob/main/src/scripts/organizations.tsv
+
 ## Getting Started
 
 ### Pre-reqs
