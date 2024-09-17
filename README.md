@@ -31,7 +31,7 @@ poetry install
 
 ```bash
 # Seed organization data
-poetry run python src/scripts/upload-organizations.py
+poetry run main seed-organizations
 
 # Navigate to http://localhost:8080 to see tables populated
 ```
@@ -41,13 +41,13 @@ poetry run python src/scripts/upload-organizations.py
 You must run the seed procedure above and grab one of the site IDs in the DB
 
 ```bash
-poetry run python src/scripts/crawl_url.py 2002 <SITE_ID>
+poetry run main crawl 2002 <SITE_ID>
 ```
 
 #### Scraping sites and push content to DB
 
 ```bash
-poetry run python src/scripts/crawl_url.py 2002 <SITE_ID> --push
+poetry run main crawl 2002 <SITE_ID> --push
 ```
 
 ## Useful commands

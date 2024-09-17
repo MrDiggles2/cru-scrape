@@ -1,3 +1,6 @@
+[tool.poetry.scripts]
+main = 'src.main:main'
+
 [tool.poetry]
 name = "cru-scrape"
 version = "0.1.0"
@@ -56,7 +59,6 @@ w3lib = "2.2.1"
 zope-interface = "6.4.post2"
 typer = "^0.12.3"
 python-dotenv = "^1.0.1"
-
 
 [build-system]
 requires = ["poetry-core"]
