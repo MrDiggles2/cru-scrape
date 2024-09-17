@@ -3,13 +3,17 @@ import urllib.parse
 import datetime
 import re
 
-from src.utils.url import remove_protocol_and_www
+from src.utils.url import remove_protocol_and_www, sanitize_url
 
 class WaybackUrl:
   url: str
 
   def __init__(self, url: str):
     self.url = url
+
+  def is_valid(self):
+    result = re.match(r'^https?:\/\/web.archive.org\/web\/', self.url)
+    return False if result is None else True
 
   def get_full_url(self):
     return self.url
@@ -46,6 +50,19 @@ class WaybackUrl:
     logging.debug(f'\t\t{self.get_snapshot_date().year}')
     return self.get_snapshot_date().year == url.get_snapshot_date().year
 
+  def matches_base(self, url: "WaybackUrl"):
+    me = remove_protocol_and_www(self.get_base_url())
+    them = remove_protocol_and_www(url.get_original_url())
+
+    logging.debug(f'\tchecking origin')
+    logging.debug(f'\t\t{me}')
+    logging.debug(f'\t\t{them}')
+
+    return  them.find(me) > -1
+
+  def get_base_url(self):
+    return sanitize_url(self.get_original_url())
+
   def join(self, path: str):
     joined_url = path
     # i.e. hunting_trapping/hunting/MainesGamePlanForDeer.htm
@@ -53,13 +70,3 @@ class WaybackUrl:
       joined_url = urllib.parse.urljoin(self.get_full_url(), path)
 
     return WaybackUrl.from_url(joined_url)
-
-  def contains(self, url: str):
-    me = remove_protocol_and_www(self.get_original_url())
-    them = remove_protocol_and_www(url)
-
-    logging.debug(f'\tchecking origin')
-    logging.debug(f'\t\t{me}')
-    logging.debug(f'\t\t{them}')
-
-    return  me.find(them) > -1

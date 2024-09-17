@@ -32,7 +32,7 @@ def crawl(
   })
 
   start = time.time()
-  process.crawl(Spider, url, site)
+  process.crawl(Spider, url, site, False)
   process.start()
 
   print(f'Took {time.time()- start} seconds')

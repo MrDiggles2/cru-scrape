@@ -50,6 +50,12 @@ poetry run main crawl 2002 <SITE_ID>
 poetry run main crawl 2002 <SITE_ID> --push
 ```
 
+#### Scraping a site by URL and dump content to stdout
+
+```bash
+poetry run main scrape-one-url https://web.archive.org/web/20010604010635/http://janus.state.me.us/ifw/index.htm
+```
+
 ## Useful commands
 
 ### Destroy database

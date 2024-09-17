@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 
 from src.commands.crawl import crawl
 from src.commands.seed_organizations import seed_organizations
+from src.commands.scrape_one_url import scrape_one_url
 
 load_dotenv()
 
@@ -14,6 +15,12 @@ def main():
     help="Given a site ID and year, crawls and scrapes a site, printing site contents to stdout by default",
     no_args_is_help=True
   )(crawl)
+
+  app.command(
+    short_help='Scrapes a single wayback URL and prints the result. Does not push to DB.',
+    help="Scrapes a single wayback URL and prints the result. Does not push to DB.",
+    no_args_is_help=True
+  )(scrape_one_url)
 
   app.command(
     short_help='Upserts organization and site records',
