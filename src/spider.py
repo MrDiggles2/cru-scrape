@@ -138,9 +138,9 @@ class Spider(scrapy.Spider):
       logging.debug(f'\tDoes not contain start URL')
       return False
 
-    # Check that the year on the link matches where we started
+    # Check that the year on the link is within one year of our start URL
 
-    if not self.start_wayback_url.matches_year(link):
+    if not self.start_wayback_url.matches_year(link, plus_minus = 1):
       logging.debug(f'\tDoes not match year')
       return False
 

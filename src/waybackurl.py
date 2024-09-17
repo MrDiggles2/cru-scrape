@@ -44,11 +44,11 @@ class WaybackUrl:
 
     return WaybackUrl(no_anchor_url)
 
-  def matches_year(self, url: "WaybackUrl"):
+  def matches_year(self, url: "WaybackUrl", plus_minus = 0):
     logging.debug(f'\tchecking year')
     logging.debug(f'\t\t{url.get_snapshot_date().year}')
     logging.debug(f'\t\t{self.get_snapshot_date().year}')
-    return self.get_snapshot_date().year == url.get_snapshot_date().year
+    return abs(self.get_snapshot_date().year - url.get_snapshot_date().year) <= plus_minus
 
   def matches_base(self, url: "WaybackUrl"):
     me = remove_protocol_and_www(self.get_base_url())
