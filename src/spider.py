@@ -52,7 +52,7 @@ class Spider(scrapy.Spider):
       # up the data.
       logging.info('Got redirected to a different year, skipping')
     elif isinstance(response, HtmlResponse):
-      if url.get_original_url().endswith('.pdf'):
+      if url.get_original_url().lower().endswith('.pdf'):
         content, next_urls = self.handle_pdf(response)
       else:
         content, next_urls = self.handle_html(response)
