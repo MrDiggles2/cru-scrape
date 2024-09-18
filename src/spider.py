@@ -54,7 +54,6 @@ class Spider(scrapy.Spider):
 
   def parse(self, response: Response):
     url = WaybackUrl.from_url(response.request.url)
-    self.visited.add(url.get_original_url())
 
     logging.info(f'at {url.get_full_url()}')
 
@@ -63,12 +62,7 @@ class Spider(scrapy.Spider):
     # URLs uncovered on page
     next_urls: List[str] = []
 
-    if not self.matches_year(url):
-      # We need to check here since WB will occasionally redirect to a different
-      # year. If we encounter those, we should just ignore it to avoid muddling
-      # up the data.
-      logging.info('Got redirected to a different year, skipping')
-    elif url.is_pdf():
+    if url.is_pdf():
       # We should never navigate to a PDF page
       raise Exception(f'Tried to process pdf {url.get_original_url()}')
     elif isinstance(response, HtmlResponse):
@@ -211,10 +205,12 @@ class Spider(scrapy.Spider):
     if link.get_original_url() in self.visited:
       logging.debug(f'\tAlready visited a previous snapshot')
       return False
+    else:
+      self.visited.add(link.get_original_url())
 
     logging.debug(f'\tGood')
 
     return True
 
   def matches_year(self, link: WaybackUrl):
-    return self.year is None or link.matches_year(self.year, plus_minus=1)
+    return self.year is None or link.matches_year(self.year, plus_minus=0)
