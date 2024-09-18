@@ -1,8 +1,9 @@
+from typing import List, Optional
 import psycopg2
 import os
-from psycopg2.extras import RealDictCursor
+from psycopg2.extras import RealDictCursor, execute_values
 from dotenv import load_dotenv
-from src.entities import Site, PageItem
+from src.entities import Site, PageItem, StartPage
 from src.waybackurl import WaybackUrl
 
 load_dotenv()
@@ -95,32 +96,111 @@ def get_site_by_id(conn, site_id):
   cursor.execute(sql, (site_id,))
   return Site(cursor.fetchone()) if cursor.rowcount > 0 else None
 
-def upsert_page(conn, page: PageItem) -> str:
+def get_inprogress_pages(conn, site: Site, year: str):
+  cursor = conn.cursor(cursor_factory=RealDictCursor)
+
+  sql = """
+    SELECT id, wb_url
+    FROM public.pages
+    WHERE
+      site_id = %s
+      AND year = %s
+      AND content IS NULL
+      AND error IS NULL
+  """
+
+  cursor.execute(sql, (site.id, year,))
+  records = cursor.fetchall()
+
+  return list(map(lambda record: StartPage(record), records))
+
+def provision_empty_page(conn, site: Site, wb_url: WaybackUrl) -> Optional[str]:
   cursor = conn.cursor()
 
   sql = """
     INSERT INTO public.pages
       ( year, original_url, wb_url, content, original_timestamp, site_id )
-    VALUES
-      ( %s, %s, %s, %s, %s, %s )
+    VALUES (%s, %s, %s, %s, %s, %s)
     ON CONFLICT (year, original_url)
       DO UPDATE
         SET
           content = EXCLUDED.content,
-          original_timestamp = EXCLUDED.original_timestamp,
           updated_at = now()
     RETURNING id
   """
 
-  url = WaybackUrl.from_url(page['wb_url'])
+  values = (
+    wb_url.get_snapshot_date().year,
+    wb_url.get_original_url(),
+    wb_url.get_full_url(),
+    None,
+    wb_url.get_snapshot_date(),
+    site.id
+  )
 
-  cursor.execute(sql, (
-    url.get_snapshot_date().year,
-    url.get_original_url(),
-    url.get_full_url(),
-    page['content'],
-    url.get_snapshot_date(),
-    page['site_id']
-  ))
+  cursor.execute(sql, values)
+
+  return cursor.fetchone()[0] if cursor.rowcount > 0 else None
+
+def upsert_page(conn, page: PageItem) -> str:
+  cursor = conn.cursor()
+
+  if page['page_id'] is not None:
+    sql = f"""
+      UPDATE public.pages
+      SET content = %s
+      WHERE id = '{page['page_id']}'
+      RETURNING id
+    """
+    values = (page['content'],)
+  else:
+    url = WaybackUrl.from_url(page['wb_url'])
+
+    sql = """
+      INSERT INTO public.pages
+        ( year, original_url, wb_url, content, original_timestamp, site_id )
+      VALUES
+        ( %s, %s, %s, %s, %s, %s )
+      ON CONFLICT (year, original_url)
+        DO UPDATE
+          SET
+            content = EXCLUDED.content,
+            original_timestamp = EXCLUDED.original_timestamp,
+            updated_at = now()
+      RETURNING id
+    """
+    values = (
+      url.get_snapshot_date().year,
+      url.get_original_url(),
+      url.get_full_url(),
+      page['content'],
+      url.get_snapshot_date(),
+      page['site_id']
+    )
+
+
+  cursor.execute(sql, values)
 
   return cursor.fetchone()[0]
+
+def record_failure_by_id(conn, page_id: str, error: str):
+  cursor = conn.cursor()
+
+  sql = """
+    UPDATE public.pages
+    SET error = %s, content = NULL
+    WHERE id = %s
+  """
+  values = (error, page_id)
+  cursor.execute(sql, values)
+
+def record_failure_by_url(conn, url: str, error: str):
+  cursor = conn.cursor()
+
+  sql = """
+    UPDATE public.pages
+    SET error = %s, content = NULL
+    WHERE original_url = %s
+  """
+  values = (error, url)
+  cursor.execute(sql, values)

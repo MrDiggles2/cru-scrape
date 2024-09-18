@@ -56,6 +56,13 @@ poetry run main crawl 2002 <SITE_ID> --push
 poetry run main scrape-one-url https://web.archive.org/web/20010604010635/http://janus.state.me.us/ifw/index.htm
 ```
 
+#### Testing error handling
+
+```bash
+# Should 404
+poetry run main scrape-one-url https://web.archive.org/web/20040920015752/http://www.maine.gov/ifw/wildlife.htm
+```
+
 ## Useful commands
 
 ### Destroy database

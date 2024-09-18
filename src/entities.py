@@ -1,3 +1,4 @@
+from typing import Optional
 import scrapy
 
 class Site():
@@ -16,14 +17,27 @@ class Site():
     self.start_year = psql_dict['start_year']
     self.end_year = psql_dict['end_year']
 
-class PageItem(scrapy.Item): 
+class StartPage():
+  id: Optional[str]
+  wb_url: str
+
+  def __init__(self, psql_dict):
+    self.id = psql_dict['id']
+    self.wb_url = psql_dict['wb_url']
+
+class PageItem(scrapy.Item):
+  # This will be set if a row is already provisioned for this page
+  page_id = scrapy.Field()
   wb_url = scrapy.Field()
   content = scrapy.Field()
+  error = scrapy.Field()
   site_id = scrapy.Field()
 
   def to_dict(self):
     return {
+      'page_id': self['page_id'],
       'wb_url': self['wb_url'],
       'content': self['content'],
-      'site_id': self['site_id']
+      'site_id': self['site_id'],
+      'error': self['error']
     }

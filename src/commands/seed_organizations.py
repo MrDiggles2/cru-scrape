@@ -41,7 +41,7 @@ def seed_organizations():
     site_url = row_dict['Link']
     start_year = row_dict['Start Date']
     end_year = row_dict['End Date']
-    base_url = sanitize_url(site_url)
+    base_url = sanitize_url(site_url) # TODO: actually visit the page to track redirects
       
 
     # Create an organization if "entry" is 1
