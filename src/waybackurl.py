@@ -44,24 +44,11 @@ class WaybackUrl:
 
     return WaybackUrl(no_anchor_url)
 
-  def matches_year(self, url: "WaybackUrl", plus_minus = 0):
+  def matches_year(self, year: int, plus_minus = 0):
     logging.debug(f'\tchecking year')
-    logging.debug(f'\t\t{url.get_snapshot_date().year}')
+    logging.debug(f'\t\t{year}')
     logging.debug(f'\t\t{self.get_snapshot_date().year}')
-    return abs(self.get_snapshot_date().year - url.get_snapshot_date().year) <= plus_minus
-
-  def matches_base(self, url: "WaybackUrl"):
-    me = remove_protocol_and_www(self.get_base_url())
-    them = remove_protocol_and_www(url.get_original_url())
-
-    logging.debug(f'\tchecking origin')
-    logging.debug(f'\t\t{me}')
-    logging.debug(f'\t\t{them}')
-
-    return  them.find(me) > -1
-
-  def get_base_url(self):
-    return sanitize_url(self.get_original_url())
+    return abs(self.get_snapshot_date().year - year) <= plus_minus
 
   def join(self, path: str):
     joined_url = path
@@ -70,3 +57,13 @@ class WaybackUrl:
       joined_url = urllib.parse.urljoin(self.get_full_url(), path)
 
     return WaybackUrl.from_url(joined_url)
+
+  def contains(self, url: str):
+    me = remove_protocol_and_www(self.get_original_url())
+    them = remove_protocol_and_www(url)
+
+    logging.debug(f'\tchecking origin')
+    logging.debug(f'\t\t{me}')
+    logging.debug(f'\t\t{them}')
+
+    return  me.find(them) > -1

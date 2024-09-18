@@ -26,7 +26,7 @@ def scrape_one_url(
   })
 
   start = time.time()
-  process.crawl(Spider, url, None, True)
+  process.crawl(Spider, url, None, None, True, False)
   process.start()
 
   print(f'Took {time.time()- start} seconds')

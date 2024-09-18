@@ -8,36 +8,43 @@ from typing import Optional, List, Tuple
 
 from src.entities import Site, PageItem
 from src.waybackurl import WaybackUrl
-from src.utils.url import sanitize_url
+from src.utils.psql import provision_empty_pages, get_connection
 
 class Spider(scrapy.Spider):
   name = 'spider'
   site = Site
   start_urls = []
-  start_wayback_url: WaybackUrl
+  year: int
   visited = set()
   on_first_page = True
   stop_after_one = False
+  push: bool
 
-  def __init__(self, wb_url: str, site: Optional[Site], stop_after_one: bool, *args, **kwargs):
+  def __init__(
+    self,
+    start_urls: List[str],
+    site: Optional[Site],
+    year: Optional[int],
+    stop_after_one: bool,
+    push: bool,
+    *args,
+    **kwargs
+  ):
     super().__init__(*args, **kwargs)
     self.site = site
     self.stop_after_one = stop_after_one
+    self.year = year
 
     # This is how scrapy knows where to scrape
-    self.start_urls.append(wb_url)
+    self.start_urls = start_urls
+    # i.e. whether or not to push to DB
+    self.push = push
 
     # Always suppress scrapy logs
     logging.getLogger('scrapy').setLevel(logging.ERROR)
 
   def parse(self, response: Response):
     url = WaybackUrl.from_url(response.request.url)
-
-    # Wayback URLs will sometimes redirect so we must set the start URL after we
-    # get a response back
-    if self.on_first_page:
-      self.on_first_page = False
-      self.start_wayback_url = url
 
     logging.info(f'at {url.get_full_url()}')
 
@@ -46,7 +53,7 @@ class Spider(scrapy.Spider):
     # URLs uncovered on page
     next_urls: List[str] = []
 
-    if not url.matches_year(self.start_wayback_url):
+    if self.year is not None and not url.matches_year(self.year):
       # We need to check here since WB will occasionally redirect to a different
       # year. If we encounter those, we should just ignore it to avoid muddling
       # up the data.
@@ -76,13 +83,22 @@ class Spider(scrapy.Spider):
         logging.info('Stopping after one, no further links found')
 
     # Check each URL to see if we need to follow it
+    relevant_next_wb_urls: List[WaybackUrl] = []
     for next_url in next_urls:
       next_wb_url = url.join(next_url)
       if self.is_relevant(next_wb_url):
-        if self.stop_after_one:
-          logging.info(f'\t{next_wb_url.get_full_url()}')
-        else:
-          yield response.follow(next_wb_url.get_full_url(), self.parse)
+        relevant_next_wb_urls.append(next_wb_url)
+
+    # Provision rows
+    if self.push:
+      provision_empty_pages(get_connection(), self.site, relevant_next_wb_urls)
+
+    # Follow each relevant URL
+    for next_wb_url in relevant_next_wb_urls:
+      if self.stop_after_one:
+        logging.info(f'\t{next_wb_url.get_full_url()}')
+      else:
+        yield response.follow(next_wb_url.get_full_url(), self.parse)
 
   def handle_html(self, response: HtmlResponse) -> Tuple[Optional[str], List[str]]:
 
@@ -126,7 +142,7 @@ class Spider(scrapy.Spider):
     # TODO see https://github.com/MrDiggles2/cru-scrape/issues/1
     logging.info(f'{response.url} is a PDF, skipping...')
 
-    return (None, [])
+    return ('', [])
 
   def is_relevant(self, link: WaybackUrl):
 
@@ -134,13 +150,13 @@ class Spider(scrapy.Spider):
 
     # Check that we're staying on the page where we started
 
-    if not self.start_wayback_url.matches_base(link):
+    if not link.contains(self.site.base_url):
       logging.debug(f'\tDoes not contain start URL')
       return False
 
     # Check that the year on the link is within one year of our start URL
 
-    if not self.start_wayback_url.matches_year(link, plus_minus = 1):
+    if self.year is not None and not link.matches_year(self.year, plus_minus = 1):
       logging.debug(f'\tDoes not match year')
       return False
 
