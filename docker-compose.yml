@@ -1,4 +1,12 @@
 services:
+  redis:
+    image: redis:7.4.0-alpine
+    ports:
+      - ${REDIS_PORT}:6379
+    environment:
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+
   db:
     image: postgres
     ports:
