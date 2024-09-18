@@ -29,6 +29,9 @@ poetry install
 
 #### Seeding organization data
 
+> [!IMPORTANT]  
+> This must be run before any of the `poetry run main crawl ...` commands below
+
 ```bash
 # Seed organization data
 poetry run main seed-organizations
@@ -37,8 +40,6 @@ poetry run main seed-organizations
 ```
 
 #### Scraping sites and dump content to stdout
-
-You must run the seed procedure above and grab one of the site IDs in the DB
 
 ```bash
 poetry run main crawl 2002 <SITE_ID>
