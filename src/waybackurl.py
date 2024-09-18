@@ -17,6 +17,9 @@ class WaybackUrl:
 
   def get_full_url(self):
     return self.url
+
+  def is_pdf(self):
+    return self.get_original_url().lower().endswith('.pdf')
   
   def get_original_url(self):
     wayback_path = urllib.parse.urlparse(self.url).path

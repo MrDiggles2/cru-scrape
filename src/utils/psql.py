@@ -1,9 +1,9 @@
-from typing import List
+from typing import List, Optional
 import psycopg2
 import os
 from psycopg2.extras import RealDictCursor, execute_values
 from dotenv import load_dotenv
-from src.entities import Site, PageItem
+from src.entities import Site, PageItem, StartPage
 from src.waybackurl import WaybackUrl
 
 load_dotenv()
@@ -96,11 +96,11 @@ def get_site_by_id(conn, site_id):
   cursor.execute(sql, (site_id,))
   return Site(cursor.fetchone()) if cursor.rowcount > 0 else None
 
-def get_inprogress_pages(conn, site: Site, year: str) -> List[str]:
-  cursor = conn.cursor()
+def get_inprogress_pages(conn, site: Site, year: str):
+  cursor = conn.cursor(cursor_factory=RealDictCursor)
 
   sql = """
-    SELECT wb_url
+    SELECT id, wb_url
     FROM public.pages
     WHERE
       site_id = %s
@@ -111,59 +111,70 @@ def get_inprogress_pages(conn, site: Site, year: str) -> List[str]:
   cursor.execute(sql, (site.id, year,))
   records = cursor.fetchall()
 
-  return list(map(lambda record: record[0], records))
+  return list(map(lambda record: StartPage(record), records))
 
-def provision_empty_pages(conn, site: Site, wb_urls: List[WaybackUrl]):
+def provision_empty_page(conn, site: Site, wb_url: WaybackUrl) -> Optional[str]:
   cursor = conn.cursor()
 
   sql = """
     INSERT INTO public.pages
       ( year, original_url, wb_url, content, original_timestamp, site_id )
-    VALUES %s
+    VALUES (%s, %s, %s, %s, %s, %s)
     ON CONFLICT (year, original_url)
       DO NOTHING
+    RETURNING id
   """
 
-  def getValues(wb_url: WaybackUrl):
-    return (
-      wb_url.get_snapshot_date().year,
-      wb_url.get_original_url(),
-      wb_url.get_full_url(),
-      None,
-      wb_url.get_snapshot_date(),
-      site.id
-    )
+  values = (
+    wb_url.get_snapshot_date().year,
+    wb_url.get_original_url(),
+    wb_url.get_full_url(),
+    None,
+    wb_url.get_snapshot_date(),
+    site.id
+  )
 
-  data = list(map(getValues, wb_urls))
-  execute_values(cursor, sql, data)
-  conn.commit()
+  cursor.execute(sql, values)
+
+  return cursor.fetchone()[0] if cursor.rowcount > 0 else None
 
 def upsert_page(conn, page: PageItem) -> str:
   cursor = conn.cursor()
 
-  sql = """
-    INSERT INTO public.pages
-      ( year, original_url, wb_url, content, original_timestamp, site_id )
-    VALUES
-      ( %s, %s, %s, %s, %s, %s )
-    ON CONFLICT (year, original_url)
-      DO UPDATE
-        SET
-          content = EXCLUDED.content,
-          original_timestamp = EXCLUDED.original_timestamp,
-          updated_at = now()
-    RETURNING id
-  """
+  if page['page_id'] is not None:
+    sql = f"""
+      UPDATE public.pages
+      SET content = %s
+      WHERE id = '{page['page_id']}'
+      RETURNING id
+    """
+    values = (page['content'],)
+  else:
+    url = WaybackUrl.from_url(page['wb_url'])
 
-  url = WaybackUrl.from_url(page['wb_url'])
+    sql = """
+      INSERT INTO public.pages
+        ( year, original_url, wb_url, content, original_timestamp, site_id )
+      VALUES
+        ( %s, %s, %s, %s, %s, %s )
+      ON CONFLICT (year, original_url)
+        DO UPDATE
+          SET
+            content = EXCLUDED.content,
+            original_timestamp = EXCLUDED.original_timestamp,
+            updated_at = now()
+      RETURNING id
+    """
+    values = (
+      url.get_snapshot_date().year,
+      url.get_original_url(),
+      url.get_full_url(),
+      page['content'],
+      url.get_snapshot_date(),
+      page['site_id']
+    )
 
-  cursor.execute(sql, (
-    url.get_snapshot_date().year,
-    url.get_original_url(),
-    url.get_full_url(),
-    page['content'],
-    url.get_snapshot_date(),
-    page['site_id']
-  ))
+
+  cursor.execute(sql, values)
 
   return cursor.fetchone()[0]

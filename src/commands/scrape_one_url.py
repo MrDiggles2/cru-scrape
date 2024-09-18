@@ -4,6 +4,7 @@ from scrapy.crawler import CrawlerProcess
 
 from src.spider import Spider
 from src.waybackurl import WaybackUrl
+from src.entities import StartPage
 
 def scrape_one_url(
     url: str = typer.Argument(..., help="The Wayback URL to scrape"),
@@ -15,7 +16,9 @@ def scrape_one_url(
   if not wb_url.is_valid():
     raise Exception(f'{url} is not a valid Wayback URL')
 
-  print(f'Starting {url}')
+  start_pages = [StartPage({'id': None, 'wb_url': wb_url.get_full_url()})]
+
+  print(f'Starting {list(map(lambda page: page.id, start_pages))}')
 
   process = CrawlerProcess(settings={
     'USER_AGENT': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
@@ -26,7 +29,7 @@ def scrape_one_url(
   })
 
   start = time.time()
-  process.crawl(Spider, url, None, None, True, False)
+  process.crawl(Spider, start_pages, None, None, True, False)
   process.start()
 
   print(f'Took {time.time()- start} seconds')
