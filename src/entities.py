@@ -30,6 +30,7 @@ class PageItem(scrapy.Item):
   page_id = scrapy.Field()
   wb_url = scrapy.Field()
   content = scrapy.Field()
+  error = scrapy.Field()
   site_id = scrapy.Field()
 
   def to_dict(self):
@@ -37,5 +38,6 @@ class PageItem(scrapy.Item):
       'page_id': self['page_id'],
       'wb_url': self['wb_url'],
       'content': self['content'],
-      'site_id': self['site_id']
+      'site_id': self['site_id'],
+      'error': self['error']
     }

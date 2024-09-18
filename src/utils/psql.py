@@ -106,6 +106,7 @@ def get_inprogress_pages(conn, site: Site, year: str):
       site_id = %s
       AND year = %s
       AND content IS NULL
+      AND error IS NULL
   """
 
   cursor.execute(sql, (site.id, year,))
@@ -121,7 +122,10 @@ def provision_empty_page(conn, site: Site, wb_url: WaybackUrl) -> Optional[str]:
       ( year, original_url, wb_url, content, original_timestamp, site_id )
     VALUES (%s, %s, %s, %s, %s, %s)
     ON CONFLICT (year, original_url)
-      DO NOTHING
+      DO UPDATE
+        SET
+          content = EXCLUDED.content,
+          updated_at = now()
     RETURNING id
   """
 
@@ -178,3 +182,25 @@ def upsert_page(conn, page: PageItem) -> str:
   cursor.execute(sql, values)
 
   return cursor.fetchone()[0]
+
+def record_failure_by_id(conn, page_id: str, error: str):
+  cursor = conn.cursor()
+
+  sql = """
+    UPDATE public.pages
+    SET error = %s, content = NULL
+    WHERE id = %s
+  """
+  values = (error, page_id)
+  cursor.execute(sql, values)
+
+def record_failure_by_url(conn, url: str, error: str):
+  cursor = conn.cursor()
+
+  sql = """
+    UPDATE public.pages
+    SET error = %s, content = NULL
+    WHERE original_url = %s
+  """
+  values = (error, url)
+  cursor.execute(sql, values)

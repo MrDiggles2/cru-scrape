@@ -1,5 +1,6 @@
 import scrapy
 from scrapy.http import HtmlResponse, Response
+from scrapy.spidermiddlewares.httperror import HttpError
 from bs4 import BeautifulSoup
 from bs4.element import Comment
 import logging
@@ -8,7 +9,7 @@ from typing import Optional, List, Tuple
 
 from src.entities import Site, PageItem, StartPage
 from src.waybackurl import WaybackUrl
-from src.utils.psql import provision_empty_page, get_connection, upsert_page
+from src.utils.psql import provision_empty_page, get_connection, upsert_page, record_failure_by_id, record_failure_by_url
 
 class Spider(scrapy.Spider):
   name = 'spider'
@@ -46,7 +47,9 @@ class Spider(scrapy.Spider):
       yield scrapy.Request(
         page.wb_url,
         dont_filter=True,
-        meta={"page_id": page.id}
+        meta={"page_id": page.id},
+        errback=self.handle_error,
+        callback=self.parse
       )
 
   def parse(self, response: Response):
@@ -94,31 +97,61 @@ class Spider(scrapy.Spider):
 
     for next_url in next_urls:
       next_wb_url = url.join(next_url)
+
       # Check each URL to see if we need to follow it
-      if self.is_relevant(next_wb_url):
-        if self.stop_after_one:
-          logging.info(f'\t{next_wb_url.get_full_url()}')
-        else:
-          # Provision row for this page
-          page_id = None
-          if self.push:
-            page_id = provision_empty_page(conn, self.site, next_wb_url)
+      if not self.is_relevant(next_wb_url):
+        continue
 
-            # Fill in PDFs with empty strings so we never navigate to (and
-            # download) PDFs. We'll need to go back and redo these at a later
-            # time.
-            if next_wb_url.is_pdf():
-              item = PageItem()
-              item['page_id'] = page_id
-              item['content'] = ''
-              item['wb_url'] = str(next_wb_url.get_full_url())
-              item['site_id'] = getattr(self.site, 'id', None)
-              upsert_page(conn, item)
+      if self.stop_after_one:
+        logging.info(f'\t{next_wb_url.get_full_url()}')
+        continue
 
-          if not next_wb_url.is_pdf():
-            yield response.follow(next_wb_url.get_full_url(), self.parse, meta={'page_id': page_id})
+      # Provision row for this page
+      page_id = None
+      if self.push:
+        page_id = provision_empty_page(conn, self.site, next_wb_url)
+
+        # Fill in PDFs with empty strings so we never navigate to (and
+        # download) PDFs. We'll need to go back and redo these at a later
+        # time.
+        if next_wb_url.is_pdf():
+          item = PageItem()
+          item['page_id'] = page_id
+          item['content'] = ''
+          item['wb_url'] = str(next_wb_url.get_full_url())
+          item['site_id'] = getattr(self.site, 'id', None)
+          upsert_page(conn, item)
+
+      if not next_wb_url.is_pdf():
+        yield scrapy.Request(
+          next_wb_url.get_full_url(),
+          dont_filter=True,
+          meta={"page_id": page_id},
+          errback=self.handle_error,
+          callback=self.parse
+        )
     
     if conn:
+        conn.commit()
+
+  def handle_error(self, failure):
+    error_message = repr(failure)
+    self.logger.error(error_message)
+
+    if failure.check(HttpError):
+        # these exceptions come from HttpError spider middleware
+        # you can get the non-200 response
+        response = failure.value.response
+        page_id = response.meta['page_id']
+
+        conn = get_connection()
+
+        if page_id:
+          record_failure_by_id(conn, page_id, error_message)
+        else:
+          url = WaybackUrl.from_url(response.request.url)
+          record_failure_by_url(conn, url.get_original_url(), error_message)
+
         conn.commit()
 
   def handle_html(self, response: HtmlResponse) -> Tuple[Optional[str], List[str]]:

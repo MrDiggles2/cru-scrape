@@ -26,6 +26,7 @@ def scrape_one_url(
     "DOWNLOAD_DELAY": "1.0",
     "CONCURRENT_REQUESTS_PER_DOMAIN": "1",
     'LOG_LEVEL': 'DEBUG' if verbose else 'INFO',
+    'REQUEST_FINGERPRINTER_IMPLEMENTATION': '2.7',
   })
 
   start = time.time()
