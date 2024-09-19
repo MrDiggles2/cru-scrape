@@ -205,3 +205,15 @@ def record_failure_by_url(conn, url: str, error: str):
     """
     values = (error, url)
     cursor.execute(sql, values)
+
+def already_visited(conn, original_url: str, year: str):
+  with conn.cursor() as cursor:
+    sql = """
+      SELECT COUNT(*)
+      FROM public.pages
+      WHERE original_url = %s and year = %s
+    """
+
+    row = select_first(cursor, sql, (original_url, year,))
+
+    return True if row[0] > 0 else False
