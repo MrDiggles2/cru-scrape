@@ -89,8 +89,6 @@ class Spider(scrapy.Spider):
       else:
         logging.info('Stopping after one, no further links found')
 
-    conn = get_connection() if self.push else None
-
     for next_url in next_urls:
       next_wb_url = url.join(next_url)
 
@@ -105,18 +103,19 @@ class Spider(scrapy.Spider):
       # Provision row for this page
       page_id = None
       if self.push:
-        page_id = provision_empty_page(conn, self.site, next_wb_url)
+        with get_connection() as conn:
+          page_id = provision_empty_page(conn, self.site, next_wb_url)
 
-        # Fill in PDFs with empty strings so we never navigate to (and
-        # download) PDFs. We'll need to go back and redo these at a later
-        # time.
-        if next_wb_url.is_pdf():
-          item = PageItem()
-          item['page_id'] = page_id
-          item['content'] = ''
-          item['wb_url'] = str(next_wb_url.get_full_url())
-          item['site_id'] = getattr(self.site, 'id', None)
-          upsert_page(conn, item)
+          # Fill in PDFs with empty strings so we never navigate to (and
+          # download) PDFs. We'll need to go back and redo these at a later
+          # time.
+          if next_wb_url.is_pdf():
+            item = PageItem()
+            item['page_id'] = page_id
+            item['content'] = ''
+            item['wb_url'] = str(next_wb_url.get_full_url())
+            item['site_id'] = getattr(self.site, 'id', None)
+            upsert_page(conn, item)
 
       if not next_wb_url.is_pdf():
         yield scrapy.Request(
@@ -126,10 +125,6 @@ class Spider(scrapy.Spider):
           errback=self.handle_error,
           callback=self.parse
         )
-    
-    if conn:
-        conn.commit()
-        conn.close()
 
   def handle_error(self, failure: Failure):
     error_message = repr(failure)
@@ -140,16 +135,12 @@ class Spider(scrapy.Spider):
 
         self.logger.error(f'at {response.request.url}: {error_message}')
 
-        conn = get_connection()
-
-        if page_id:
-          record_failure_by_id(conn, page_id, error_message)
-        else:
-          url = WaybackUrl.from_url(response.request.url)
-          record_failure_by_url(conn, url.get_original_url(), error_message)
-
-        conn.commit()
-        conn.close()
+        with get_connection() as conn:
+          if page_id:
+            record_failure_by_id(conn, page_id, error_message)
+          else:
+            url = WaybackUrl.from_url(response.request.url)
+            record_failure_by_url(conn, url.get_original_url(), error_message)
     else:
       self.logger.error(f'unknown error: {failure.getErrorMessage()}\n{failure.getTraceback}')
 
