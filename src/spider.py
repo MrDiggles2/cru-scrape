@@ -10,7 +10,7 @@ from twisted.python.failure import Failure
 
 from src.entities import Site, PageItem, StartPage
 from src.waybackurl import WaybackUrl
-from src.utils.psql import provision_empty_page, get_connection, upsert_page, record_failure_by_id, record_failure_by_url
+from src.utils.psql import provision_empty_page, get_connection, upsert_page, record_failure_by_id, record_failure_by_url, already_visited
 from src.ignore_list import should_ignore
 
 class Spider(scrapy.Spider):
@@ -18,7 +18,6 @@ class Spider(scrapy.Spider):
   site: Optional[Site]
   start_pages: List[StartPage]
   year: Optional[int]
-  visited = set()
   stop_after_one = False
   push: bool
 
@@ -202,11 +201,10 @@ class Spider(scrapy.Spider):
       logging.debug(f'\tDoes not match year')
       return False
 
-    if link.get_original_url() in self.visited:
-      logging.debug(f'\tAlready visited a previous snapshot')
-      return False
-    else:
-      self.visited.add(link.get_original_url())
+    with get_connection() as conn:
+      if already_visited(conn, link.get_original_url(), link.get_snapshot_date().year):
+        logging.debug(f'\tAlready visited a previous snapshot')
+        return False
 
     logging.debug(f'\tGood')
 
