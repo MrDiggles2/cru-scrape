@@ -45,7 +45,7 @@ class WaybackUrl:
     corrected_proto_url = re.sub(r'http://?', 'http://', no_port_url)
     no_anchor_url = corrected_proto_url.split("#")[0]
 
-    return WaybackUrl(no_anchor_url)
+    return WaybackUrl(no_anchor_url.lower())
 
   def matches_year(self, year: int, plus_minus = 0):
     logging.debug(f'\tchecking year')

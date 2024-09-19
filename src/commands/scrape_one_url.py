@@ -11,7 +11,7 @@ def scrape_one_url(
     verbose: bool = typer.Option(False, "--verbose", is_flag=True, help="Enable verbose logging")
 ):
 
-  wb_url = WaybackUrl(url)
+  wb_url = WaybackUrl.from_url(url)
 
   if not wb_url.is_valid():
     raise Exception(f'{url} is not a valid Wayback URL')

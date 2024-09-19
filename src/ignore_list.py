@@ -1,6 +1,7 @@
 ignore_list = [
-  # 2012 has 35k+ of these for some reason
-  'https://www.outdooralabama.com/magazine/magazine'
+  # 2012 AL has 35k+ of these for some reason
+  '/magazine/magazine/',
+  '/shop/shop/'
 ]
 
 def should_ignore(url: str):
