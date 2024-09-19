@@ -6,10 +6,12 @@ from bs4.element import Comment
 import logging
 import re
 from typing import Optional, List, Tuple
+from twisted.python.failure import Failure
 
 from src.entities import Site, PageItem, StartPage
 from src.waybackurl import WaybackUrl
 from src.utils.psql import provision_empty_page, get_connection, upsert_page, record_failure_by_id, record_failure_by_url
+from src.ignore_list import should_ignore
 
 class Spider(scrapy.Spider):
   name = 'spider'
@@ -127,16 +129,16 @@ class Spider(scrapy.Spider):
     
     if conn:
         conn.commit()
+        conn.close()
 
-  def handle_error(self, failure):
+  def handle_error(self, failure: Failure):
     error_message = repr(failure)
-    self.logger.error(error_message)
 
     if failure.check(HttpError):
-        # these exceptions come from HttpError spider middleware
-        # you can get the non-200 response
         response = failure.value.response
         page_id = response.meta['page_id']
+
+        self.logger.error(f'at {response.request.url}: {error_message}')
 
         conn = get_connection()
 
@@ -147,6 +149,9 @@ class Spider(scrapy.Spider):
           record_failure_by_url(conn, url.get_original_url(), error_message)
 
         conn.commit()
+        conn.close()
+    else:
+      self.logger.error(f'unknown error: {failure.getErrorMessage()}\n{failure.getTraceback}')
 
   def handle_html(self, response: HtmlResponse) -> Tuple[Optional[str], List[str]]:
 
@@ -189,6 +194,10 @@ class Spider(scrapy.Spider):
   def is_relevant(self, link: WaybackUrl):
 
     logging.debug(f'Checking relevance of {link.get_full_url()}')
+
+    if should_ignore(link.get_original_url()):
+      logging.debug(f'\tContains an ignore fragment')
+      return True
 
     # Check that we're staying on the page where we started
 
