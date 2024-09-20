@@ -187,7 +187,7 @@ class Spider(scrapy.Spider):
 
     if should_ignore(link.get_original_url()):
       logging.debug(f'\tContains an ignore fragment')
-      return True
+      return False
 
     # Check that we're staying on the page where we started
 
