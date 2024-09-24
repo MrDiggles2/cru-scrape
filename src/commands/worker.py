@@ -1,4 +1,3 @@
-import typer
 from rq import Worker
 from src.commands.crawl import crawl
 from src.utils.redis import get_connection
