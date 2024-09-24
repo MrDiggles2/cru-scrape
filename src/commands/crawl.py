@@ -18,7 +18,7 @@ def crawl(
   site = get_site_by_id(conn, site_id)
 
   if (site is None):
-    raise Exception('No site found with ID {site_id}')
+    raise Exception(f'No site found with ID {site_id}')
 
   start_pages = []
   inprogress_pages = get_inprogress_pages(conn, site, year)

@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 from src.commands.crawl import crawl
 from src.commands.seed_organizations import seed_organizations
 from src.commands.scrape_one_url import scrape_one_url
+from src.commands.worker import worker
+from src.commands.enqueue import enqueue
 
 load_dotenv()
 
@@ -27,6 +29,18 @@ def main():
     help="Upserts organization and site records using organizations.tsv",
     no_args_is_help=False
   )(seed_organizations)
+
+  app.command(
+    short_help='Starts a worker to crawl based off of a shared queue',
+    help="Starts a worker to crawl based off of a shared queue",
+    no_args_is_help=False
+  )(worker)
+
+  app.command(
+    short_help='Enqueues a job for workers to pickup',
+    help="Enqueues a job for workers to pickup",
+    no_args_is_help=True
+  )(enqueue)
 
   app()
 
