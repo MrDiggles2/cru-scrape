@@ -8,6 +8,13 @@ services:
       REDIS_PORT: ${REDIS_PORT}
       REDIS_PASSWORD: ${REDIS_PASSWORD}
 
+  rq-dashboard:
+    image: cjlapao/rq-dashboard:0.8.0
+    ports:
+      - '9181:9181'
+    environment:
+      RQ_DASHBOARD_REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+
   db:
     image: postgres
     ports:
