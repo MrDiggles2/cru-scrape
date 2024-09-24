@@ -1,0 +1,6 @@
+services:
+  cru-scrape:
+    image: mrdiggles/cru-scrape:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
