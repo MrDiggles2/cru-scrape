@@ -1,5 +1,5 @@
 import typer
-from rq import Queue
+from rq import Queue, Retry
 
 from src.commands.worker import handle_site
 from src.utils.redis import get_connection
@@ -12,4 +12,11 @@ def enqueue(
   redis_conn = get_connection()
   queue = Queue(connection=redis_conn)
 
-  queue.enqueue(handle_site, (year, site_id), at_front=at_front)
+  queue.enqueue(
+    handle_site,
+    (year, site_id),
+    at_front=at_front,
+    job_timeout='6h',
+    result_ttl=600000,
+    retry=Retry(max=3, interval=60)
+  )
