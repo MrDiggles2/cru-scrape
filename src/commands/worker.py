@@ -21,7 +21,7 @@ def worker(
 
   # Provide the worker with the list of queues (str) to listen to.
   w = Worker(['default'], connection=get_connection(), name=name)
-  w.work()
+  w.work(with_scheduler=True)
 
 def handle_site(args):
   global should_push

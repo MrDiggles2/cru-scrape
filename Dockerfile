@@ -18,7 +18,8 @@ RUN apt-get update && apt-get install libpq5 -y
 
 ENV VIRTUAL_ENV=/app/.venv \
     PATH="/app/.venv/bin:$PATH" \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    LOG_LEVEL=INFO
 
 COPY --from=build ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 
