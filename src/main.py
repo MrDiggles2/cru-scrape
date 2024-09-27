@@ -6,6 +6,7 @@ from src.commands.seed_organizations import seed_organizations
 from src.commands.scrape_one_url import scrape_one_url
 from src.commands.worker import worker
 from src.commands.enqueue import enqueue
+from src.commands.list_combos import list_combos
 
 load_dotenv()
 
@@ -41,6 +42,12 @@ def main():
     help="Enqueues a job for workers to pickup",
     no_args_is_help=True
   )(enqueue)
+
+  app.command(
+    short_help='FIXME',
+    help="FIXME",
+    no_args_is_help=False
+  )(list_combos)
 
   app()
 

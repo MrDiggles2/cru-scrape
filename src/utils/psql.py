@@ -217,3 +217,21 @@ def already_visited(conn, original_url: str, year: str):
     row = select_first(cursor, sql, (original_url, year,))
 
     return True if row[0] > 0 else False
+
+def get_all_sites(conn):
+  with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+    sql = """
+      SELECT
+        id,
+        start_url,
+        base_url,
+        organization_id,
+        start_year,
+        end_year
+      from public.sites
+    """
+
+    cursor.execute(sql)
+    records = cursor.fetchall()
+
+    return list(map(lambda record: Site(record), records))

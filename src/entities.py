@@ -3,6 +3,7 @@ import scrapy
 
 class Site():
 
+  id = str
   base_url = str
   start_url = str
   organization_id = str
@@ -16,6 +17,17 @@ class Site():
     self.organization_id = psql_dict['organization_id']
     self.start_year = psql_dict['start_year']
     self.end_year = psql_dict['end_year']
+
+
+  def to_dict(self):
+    return {
+      'id': self.id,
+      'base_url': self.base_url,
+      'start_url': self.start_url,
+      'organization_id': self.organization_id,
+      'start_year': self.start_year,
+      'end_year': self.end_year,
+    }
 
 class StartPage():
   id: Optional[str]
