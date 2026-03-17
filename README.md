@@ -6,6 +6,8 @@ Designed to be run in a distributed way with workers coordinating via [RQ](https
 
 Organizations that are currently tracked are listed here: [https://github.com/MrDiggles2/cru-scrape/blob/main/src/scripts/organizations.tsv](https://github.com/MrDiggles2/cru-scrape/blob/main/src/commands/organizations.tsv)
 
+Docker image: https://hub.docker.com/r/mrdiggles/cru-scrape/tags
+
 ## Getting Started
 
 ### Pre-reqs
