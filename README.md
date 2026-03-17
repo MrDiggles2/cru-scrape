@@ -2,6 +2,8 @@
 
 This project is the first step in an initiative to analyze website content of Cooperative Research Units (CRUs) to measure how public messaging has changed. We use the [Wayback Machine](https://web.archive.org/) to crawl snapshots of websites, extract text content, and push it to a central Postgres database in preparation for future analysis.
 
+Designed to be run in a distributed way with workers coordinating via [RQ](https://python-rq.org/). Fault-tolerant with at-least-once semantics.
+
 Organizations that are currently tracked are listed here: [https://github.com/MrDiggles2/cru-scrape/blob/main/src/scripts/organizations.tsv](https://github.com/MrDiggles2/cru-scrape/blob/main/src/commands/organizations.tsv)
 
 ## Getting Started
@@ -55,6 +57,12 @@ poetry run main crawl 2002 <SITE_ID> --push
 
 ```bash
 poetry run main scrape-one-url https://web.archive.org/web/20010604010635/http://janus.state.me.us/ifw/index.htm
+```
+
+#### Spin up a worker to join the pool
+
+```bash
+poetry run main worker
 ```
 
 #### Testing error handling
