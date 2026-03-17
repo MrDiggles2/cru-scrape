@@ -62,7 +62,7 @@ poetry run main scrape-one-url https://web.archive.org/web/20010604010635/http:/
 #### Spin up a worker to join the pool
 
 ```bash
-poetry run main worker
+docker run --detach --rm --env-file .env.prod --pull always mrdiggles/cru-scrape:queue worker
 ```
 
 #### Testing error handling
